@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Modules and Packages
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Modules :: Organizing Larger Programs
+
+            - How Python locates modules
+            - Python packages
+            - Import types
+            - Namespace packages
+            - Executable directories
+            - Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Modules and Packages -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              **Module** - single source file, it's loaded to the program via `import` keyword
+
+              **Package** - special type of module, which can contain other modules; allows
+                          defining hierarchy of modules and grouping modules with similar functionality.
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+            </textarea>
+          </section>
+
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
