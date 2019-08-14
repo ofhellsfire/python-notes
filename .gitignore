@@ -1,0 +1,9 @@
+reveal.js/
+__pycache__/
+*.pyc
+*.swp
+.venv/
+venv/
+coverage/
+.coverage
+.python-version
