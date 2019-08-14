@@ -2,6 +2,21 @@
   <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+    </style>
   </head>
   <body>
     <div class="reveal">
@@ -33,13 +48,108 @@
               **Module** - single source file, it's loaded to the program via `import` keyword
 
               **Package** - special type of module, which can contain other modules; allows
-                          defining hierarchy of modules and grouping modules with similar functionality.
+                            defining hierarchy of modules and grouping modules with similar functionality
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
+              **Modules** are generally files
+
+              **Packages** are generally directories
+
+              ![Modules and Packages](images/modules_01.jpg)
             </textarea>
           </section>
+        </section>
+
+        <!-- Slide Group: How Python locates modules -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### How Python locates modules
+
+              Python locates modules by checking `sys.path`
+
+              `sys.path` contains list of paths where Python searches for modules
+
+              If no module is found, then `ModuleNotFoundError` is raised
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### How Python locates modules :: Import module outside of `sys.path`
+
+              Method 1: Append to `sys.path`
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import sys
+              >>> sys.path
+              ['', '/.pyenv/versions/3.6.8/lib/python36.zip', '/.pyenv/versions/3.6.8/lib/python3.6', '/.pyenv/versions/3.6.8/lib/python3.6/lib-dynload', '/.pyenv/versions/3.6.8/lib/python3.6/site-packages']
+              >>> import mymodule
+              Traceback (most recent call last):
+                File "<stdin>", line 1, in <module>
+              ModuleNotFoundError: No module named 'mymodule'
+              >>> sys.path.append('/python-notes/lectures/02-intermediate/01-modules-packages/examples')
+              >>> import mymodule
+              >>> mymodule.foo()
+              this is "foo" function from /python-notes/lectures/02-intermediate/01-modules-packages/examples/mymodule.py
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### How Python locates modules :: Import module outside of `sys.path`
+
+              Method 2: Use `PYTHONPATH` environment variable
+
+              ```
+              user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import sys
+              >>> sys.path
+['', '/python-notes/lectures/02-intermediate/01-modules-packages/examples', '/.pyenv/versions/3.6.8/lib/python36.zip', '/.pyenv/versions/3.6.8/lib/python3.6', '/.pyenv/versions/3.6.8/lib/python3.6/lib-dynload', '/.pyenv/versions/3.6.8/lib/python3.6/site-packages']
+              >>> import mymodule
+              >>> mymodule.foo()
+              this is "foo" function from /python-notes/lectures/02-intermediate/01-modules-packages/examples/mymodule.py
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Python packages -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Python packages
+
+              **Packages** allows us to structure module namespace hierarchically via dot notation
+
+              **Modules** allows avoiding collisions between global variable names
+
+              **Packages** help to avoid collisions between module names
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Python packages
+
+              Modules collisions solving example
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import mymodule
+              >>> import mymodule_dos
+              >>> mymodule.foo()
+              this is "foo" function from /python-notes/lectures/02-intermediate/01-modules-packages/examples/mymodule.py
+              >>> mymodule_dos.foo()
+              inside "foo" function from "_dos" module
+              ```
+            </textarea>
+          </section>
+
+        </section>
 
       </div>
     </div>
