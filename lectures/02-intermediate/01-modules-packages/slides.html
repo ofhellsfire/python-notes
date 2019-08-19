@@ -16,6 +16,22 @@
       code {
         background: #fff8c7;
       }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: -10px;
+        left: -10px;
+        text-transform: uppercase;
+      }
     </style>
   </head>
   <body>
@@ -47,8 +63,7 @@
             <textarea data-template>
               **Module** - single source file, it's loaded to the program via `import` keyword
 
-              **Package** - special type of module, which can contain other modules; allows
-                            defining hierarchy of modules and grouping modules with similar functionality
+              **Package** - special type of module, which can contain other modules; allows defining hierarchy of modules and grouping modules with similar functionality
             </textarea>
           </section>
           <section data-markdown>
@@ -72,7 +87,7 @@
 
               `sys.path` contains list of paths where Python searches for modules
 
-              If no module is found, then `ModuleNotFoundError` is raised
+              If no module is found, then `ModuleNotFoundError` or `ImportError` is raised
             </textarea>
           </section>
           <section data-markdown>
@@ -148,9 +163,532 @@
               ```
             </textarea>
           </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Python packages
 
+              Basic package structure
+
+              ```
+              basic_package_example/    # must be in sys.path
+              └── my_package            # package root
+                  ├── __init__.py       # package init file
+                  └── printer.py
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Python packages
+
+              `__init__.py` gets executed when module is imported
+
+              Example:
+
+              ```
+              user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/basic_package_example
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import printer
+              >>> p = printer.Printer('my message')
+              >>> p.print()
+              ***my message***
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Python packages
+
+              It is possible to execute module directly from CLI via `python -m`
+
+              Example:
+
+              ```
+              user@host:~$ python -m printer.inverseme 'some message'
+              egassem emos
+              ```
+            </textarea>
+          </section>
         </section>
 
+        <!-- Slide Group: Import types -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Import types 
+
+              Python provides 2 import types:
+              - absolute
+              - relative
+            </textarea>
+          </section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Import types :: Absolute imports
+
+              Common and preferrable import type, that use full path to modules
+
+              Can contain following keywords: `import`, `from`, `as`
+
+              Examples:
+
+              ```
+              import foo
+              import foo.bar
+              import foo.bar.baz
+              from foo.bar import Baz
+              import foooooo as foo
+              from foo.bar import Bazzzzzz as Baz
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Import types :: Relative imports
+
+              **Relative imports** use a relative path to modules in the same package
+
+              Can contain following keywords: `import`, `from`, `as`, `.`, `..`
+
+              Example:
+
+              ```
+              from .printer import Printer
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Import types :: Relative imports
+
+              **Relative imports**
+
+              Examples (package structure):
+
+              ```
+              relpack
+              ├── a.py
+              ├── __init__.py
+              ├── nested
+              │   ├── b.py
+              │   ├── c.py
+              │   ├── __init__.py
+              │   ├── inner
+              │   │   ├── d.py
+              │   │   ├── e.py
+              │   │   ├── f.py
+              │   │   └── __init__.py
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Import types :: Relative imports
+
+              Examples (code):
+
+              ```
+              user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/relative_package
+              user@host:~$ cat relpack/nested/inner/e.py 
+              from relpack.nested.inner.d import func_from_d
+
+              def func_from_e():
+                  print('func_from_e()')
+
+              func_from_d()
+              user@host:~$ cat relpack/nested/inner/f.py
+              from . import d
+              from .e import func_from_e
+              from ..nested.b import func_from_b
+
+              def func_from_f():
+                  print('func_from_f()')
+
+              d.func_from_d()
+              func_from_e()
+              func_from_b()
+              user@host:~$ cat relpack/nested/inner/d.py
+              from .... import a # this does not work, it is not possible to go 2 levels up without tricks
+
+              def func_from_d():
+                  print('func_from_d()')
+
+              a.func_from_a()
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Import types :: Relative imports
+
+              `.` - refers to the same directory
+
+              `..` - refers to the parent directory
+
+              **NOTE:** you can import with `from . import mypkg`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Import types :: Relative imports
+
+              Examples:
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> from relpack.nested import c
+              init from a
+              func_from_a()
+              func_from_a()
+              func_from_b()
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Import types :: Relative imports
+
+              Summary:
+
+              - can reduce typing in deeply nested package structures
+              - promote certain forms of modifiability
+              - can aid package renaming and refactoring
+              - **avoid** them in most cases
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Controlling imports with __all__
+
+              `__all__` allows you to control which attributes are imported when using `from module import *`
+
+              If `__all__` is not specified, then all public names are imported
+
+              `__all__` must be a list of strings
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Controlling imports with __all__
+
+              Example:
+
+              ```
+              user@host:~$:~/all_star_package$ cat mod.py 
+              def foo():
+                  print('this is foo')
+
+              def bar():
+                  print('this is bar')
+
+              def baz():
+                  print('this is baz')
+
+              __all__ = ['foo', 'baz']
+              user@host:~$:~/all_star_package$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> from mod import *
+              >>> foo()
+              this is foo
+              >>> baz()
+              this is baz
+              >>> bar()
+              Traceback (most recent call last):
+                File "<stdin>", line 1, in <module>
+              NameError: name 'bar' is not defined
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Controlling imports with __all__
+
+              **IMPORTANT NOTE**
+
+              As a rule - **consider NOT TO USE** `import *` syntax
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Namespace packages -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Namespace packages
+
+              It's a package which is spread over several directories
+
+              Each directory tree contributes to a single logical package from a programming point of view
+
+              *Described in **[PEP 420](https://www.python.org/dev/peps/pep-0420/)** *
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Namespace packages
+
+              These are different from normal packages:
+              - they don't have `__init__.py`
+              - they don't have initialization code, nothing is executed when importing
+
+              They may help avoiding complex initialization ordering problems
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Namespace packages :: Algorithm detection
+
+              We try to `import foo`:
+              1. Python scans all entries in `sys.path` in order
+              1. If a matching directory with `__init__.py` is found, normal package is loaded
+              1. If `foo.py` is found, then it is loaded
+              1. Otherwise all matching directories in `sys.path` are considered as namespace package
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Namespace packages
+
+              Example:
+
+              ```
+              namespace_package/
+              ├── foo
+              │   ├── bar
+              │   │   ├── mod_d.py
+              │   │   ├── mod_e.py
+              │   ├── mod_b.py
+              │   ├── mod_c.py
+              ├── mod_a.py
+
+              user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> from namespace_package import mod_a
+              >>> mod_a.foo()
+              foo() from mod_a
+              >>> from namespace_package.foo import mod_b
+              >>> mod_b.foo()
+              foo() from mod_b
+              >>> from namespace_package.foo import mod_c
+              >>> mod_c.foo()
+              foo() from mod_c
+              >>> from namespace_package.foo.bar import mod_d
+              >>> mod_d.foo()
+              foo() from mod_d
+              >>> from namespace_package.foo.bar import mod_e
+              >>> mod_e.foo()
+              foo() from mod_e
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Namespace packages
+
+              Ordering Example:
+
+              ```
+              user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/ordering_example
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import foo
+              init in foo normal package
+              >>> foo.mod
+              <module 'foo.mod' from '...foo/mod.py'>
+              >>> dir(foo.mod)
+              ['__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', 'bar']
+              >>> foo.mod.bar
+              <function bar at 0x7f45e061db70>
+              >>> foo.mod.bar()
+              inside package "foo" in bar()
+              user@host:~$ mv foo/__init__.py foo/bak__init__.py 
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import foo
+              >>> foo.bar()
+              inside simple module "foo.py" in bar()
+              user@host:~$ mv foo.py foo.bak.py
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import foo
+              >>> foo
+              <module 'foo' (namespace)>
+              >>> foo.mod
+              Traceback (most recent call last):
+                File "<stdin>", line 1, in <module>
+              AttributeError: module 'foo' has no attribute 'mod'
+              >>> from foo import mod
+              >>> mod.bar()
+              inside package "foo" in bar()
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Executable directories -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Executable directories
+
+              There are directories where you specify
+              main entry point which is run when the package
+              is executed by Python
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Executable directories
+
+              Example structure:
+
+              ```
+              printer/
+              ├── __main__.py
+              ├── printer
+              │   ├── __init__.py
+              │   ├── printer.py
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Executable directories
+
+              These allows us to execute entire package via:
+
+              `python printer 'some message' 'another message'`
+
+              ```
+              user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/dir_exec
+              user@host:~$ python printer
+              Missing argument. Please provide a message...
+              user@host:~$ python printer 'some message' 'another message'
+              egassem emos
+              egassem rehtona
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Executable directories
+
+              Python supports archived executable directories
+
+              ```
+              user@host:~$ cd printer/
+              user@host:~$ zip -r printer.zip .
+              user@host:~$ mv printer.zip ..
+              user@host:~$ cd ..
+              user@host:~$ python printer.zip 'some message'
+              egassem emos
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              Recommended Project Layout
+
+              ```
+              project_name/
+              ├── __main__.py
+              ├── project_name
+              │   ├── __init__.py
+              │   ├── more_source.py
+              │   ├── subpackage1
+              │   │   └── __init__.py
+              │   └── test
+              │       ├── __init__.py
+              │       └── test_code.py
+              └── setup.py
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              - Prefer absolute imports over relative
+              - Avoid using `from module import *`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              Importing Style Guide
+
+              1. Imports should be on top, after comments/docstrings
+              1. Imports should be divided according to what is being imported:
+                - standard library imports
+                - related third party imports
+                - local application imports
+              1. Each group of imports should be separated by a blank space
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              Singleton Pattern
+
+              Singleton pattern - allows having only one instance of a specific class during the program execution
+
+              One of the efficient ways of implementing singleton patterns in Python is using **modules as singletons**
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              Singleton Pattern
+
+              We implement it as a module level attribute
+
+              Modules are executed once during import
+
+              This guarantees that our singleton will only be initialized once
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              Singleton Pattern Example:
+
+              ```
+              user@host:~$ python main.py 
+              egassem ym
+              1566235037.7397058
+              egassem ruoy
+              1566235037.7397058
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [Python Modules and Packages – An Introduction](https://realpython.com/python-modules-packages/)
+              - [Absolute vs Relative Imports in Python](https://realpython.com/absolute-vs-relative-python-imports/)
+              - [Importing * in Python](https://medium.com/@s16h/importing-star-in-python-88fe9e8bd4d2)
+              - [Use \__main\__.py](https://shaneoneill.io/2019/06/12/use-__main__-py/)
+            </textarea>
+          </section>
+        </section>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
