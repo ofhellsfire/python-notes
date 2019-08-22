@@ -17,7 +17,7 @@
         background: #fff8c7;
       }
       section.recap:after {
-        content: 'Recap';
+        content: 'Повтор';
         font-size: 16px;
         font-weight: bold;
         background: red;
@@ -41,19 +41,19 @@
         <!-- Slide 1 -->
         <section data-markdown>
           <textarea data-template>
-            # Modules and Packages
+            # Модули и пакеты
           </textarea>
         </section>
         <section data-markdown>
           <textarea data-template>
-            ## Modules :: Organizing Larger Programs
+            ## Модули :: Организация больших программ
 
-            - How Python locates modules
-            - Python packages
-            - Import types
-            - Namespace packages
-            - Executable directories
-            - Recommendations
+            - Как Python находит модули
+            - Python пакеты
+            - Виды импортов
+            - Пространство имен пакетов
+            - Исполняемые директории
+            - Рекомендации
           </textarea>
         </section>
 
@@ -61,16 +61,16 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              **Module** - single source file, it's loaded to the program via `import` keyword
+              **Модуль** - один исходный файл, загружается через ключевое слово `import`
 
-              **Package** - special type of module, which can contain other modules; allows defining hierarchy of modules and grouping modules with similar functionality
+              **Пакет** - специальный тип модуля; может содержать другие модули; позволяет определять иерархию модулей и группировать модули по схожей функциональности
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              **Modules** are generally files
+              **Модули** обычно являются файлами
 
-              **Packages** are generally directories
+              **Пакеты** в основном директории
 
               ![Modules and Packages](images/modules_01.jpg)
             </textarea>
@@ -81,20 +81,20 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              ### How Python locates modules
+              ### Как Python находит модули
 
-              Python locates modules by checking `sys.path`
+              Python ищет модули в списке `sys.path`
 
-              `sys.path` contains list of paths where Python searches for modules
+              `sys.path` - это список путей, в которых Python будет искать модули
 
-              If no module is found, then `ModuleNotFoundError` or `ImportError` is raised
+              Если модуль не найден, то вызывается исключение `ModuleNotFoundError` или `ImportError`
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### How Python locates modules :: Import module outside of `sys.path`
+              ### Как Python находит модули :: Импорт модулей вне списка `sys.path`
 
-              Method 1: Append to `sys.path`
+              Способ 1: Добавить путь в `sys.path`
 
               ```
               Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
@@ -114,9 +114,9 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### How Python locates modules :: Import module outside of `sys.path`
+              ### Как Python находит модули :: Импорт модулей вне списка `sys.path`
 
-              Method 2: Use `PYTHONPATH` environment variable
+              Способ 2: Использование переменной окружения `PYTHONPATH`
 
               ```
               user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples
@@ -137,20 +137,20 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              ### Python packages
+              ### Python пакеты
 
-              **Packages** allows us to structure module namespace hierarchically via dot notation
+              **Пакеты** позволяют иерархически структурировать пространство имен модуля через точку
 
-              **Modules** allows avoiding collisions between global variable names
+              **Модули** позволяют избежать коллизий между глобальными именами переменных
 
-              **Packages** help to avoid collisions between module names
+              **Пакеты** позволяют избегать коллизий между именами модулей
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Python packages
+              ### Python пакеты
 
-              Modules collisions solving example
+              Пример решения коллизий имен переменных
 
               ```
               Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
@@ -165,25 +165,25 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Python packages
+              ### Python пакеты
 
-              Basic package structure
+              Простая структура пакета
 
               ```
-              basic_package_example/    # must be in sys.path
-              └── my_package            # package root
-                  ├── __init__.py       # package init file
+              basic_package_example/    # должен быть в sys.path
+              └── my_package            # корень пакета
+                  ├── __init__.py       # файл инициализации пакета
                   └── printer.py
               ```
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Python packages
+              ### Python пакеты
 
-              `__init__.py` gets executed when module is imported
+              `__init__.py` исполняется когда пакет импортируется
 
-              Example:
+              Пример:
 
               ```
               user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/basic_package_example
@@ -198,11 +198,11 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Python packages
+              ### Python пакеты
 
-              It is possible to execute module directly from CLI via `python -m`
+              Можно исполнять модуль прямо из командной строки через `python -m`
 
-              Example:
+              Пример:
 
               ```
               user@host:~$ python -m printer.inverseme 'some message'
@@ -216,22 +216,22 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              ### Import types 
+              ### Виды импортов
 
-              Python provides 2 import types:
-              - absolute
-              - relative
+              Python имеет 2 вида импортов:
+              - абсолютный
+              - относительный
             </textarea>
           </section>
           <section data-markdown class="recap">
             <textarea data-template>
-              ### Import types :: Absolute imports
+              ### Виды импортов :: Абсолютный
 
-              Common and preferrable import type, that use full path to modules
+              Предпочтительный вид импорта; использует полный путь до модуля
 
-              Can contain following keywords: `import`, `from`, `as`
+              Может иметь ключевые слова: `import`, `from`, `as`
 
-              Examples:
+              Примеры:
 
               ```
               import foo
@@ -245,13 +245,13 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Import types :: Relative imports
+              ### Виды импортов :: Относительный
 
-              **Relative imports** use a relative path to modules in the same package
+              Использует относительный путь до модуля в этом же пакете
 
-              Can contain following keywords: `import`, `from`, `as`, `.`, `..`
+              Может иметь ключевые слова: `import`, `from`, `as`, `.`, `..`
 
-              Example:
+              Пример:
 
               ```
               from .printer import Printer
@@ -260,11 +260,11 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Import types :: Relative imports
+              ### Виды импортов :: Относительный
 
-              **Relative imports**
+              **Относительный импорт**
 
-              Examples (package structure):
+              Примеры (структура пакета):
 
               ```
               relpack
@@ -284,9 +284,9 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Import types :: Relative imports
+              ### Виды импортов :: Относительный
 
-              Examples (code):
+              Пример (код):
 
               ```
               user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/relative_package
@@ -320,20 +320,20 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Import types :: Relative imports
+              ### Виды импортов :: Относительный
 
-              `.` - refers to the same directory
+              `.` - означает текущую директорию
 
-              `..` - refers to the parent directory
+              `..` - означает родительскую директорию
 
-              **NOTE:** you can import with `from . import mypkg`
+              **ЗАМЕТКА:** можно делать импорт с помощью `from . import mypkg`
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Import types :: Relative imports
+              ### Виды импортов :: Относительный
 
-              Examples:
+              Примеры:
 
               ```
               user@host:~$ python
@@ -348,32 +348,32 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Import types :: Relative imports
+              ### Виды импортов :: Относительный
 
-              Summary:
+              Резюме:
 
-              - can reduce typing in deeply nested package structures
-              - promote certain forms of modifiability
-              - can aid package renaming and refactoring
-              - **avoid** them in most cases
+              - сокращает ввод для пакета с глубокими структурами
+              - увеличивает модифицируемость
+              - помогает осуществлять рефакторинг пакета
+              - следует **избегать** этот вид в большинстве случаев
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Controlling imports with __all__
+              ### Управление импортом через \__all\__
 
-              `__all__` allows you to control which attributes are imported when using `from module import *`
+              `__all__` позволяет контроллировать аттрибуты при использовании `from module import *`
 
-              If `__all__` is not specified, then all public names are imported
+              Если `__all__` не определено, то все публичные имена импортируются
 
-              `__all__` must be a list of strings
+              `__all__` должно быть списком строк
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Controlling imports with __all__
+              ### Управление импортом через \__all\__
 
-              Example:
+              Пример:
 
               ```
               user@host:~$:~/all_star_package$ cat mod.py 
@@ -403,11 +403,11 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Controlling imports with __all__
+              ### Управление импортом через \__all\__
 
-              **IMPORTANT NOTE**
+              **ВНИМАНИЕ**
 
-              As a rule - **consider NOT TO USE** `import *` syntax
+              Возьмите за правило **НЕ ИСПОЛЬЗОВАТЬ** `import *`
             </textarea>
           </section>
         </section>
@@ -416,42 +416,42 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              ### Namespace packages
+              ### Пространство имен пакетов
 
-              It's a package which is spread over several directories
+              Это пакет который распределен по нескольким директориям
 
-              Each directory tree contributes to a single logical package from a programming point of view
+              Каждая директория представляет собой логический пакет
 
-              *Described in **[PEP 420](https://www.python.org/dev/peps/pep-0420/)** *
+              *Описание **[PEP 420](https://www.python.org/dev/peps/pep-0420/)** *
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Namespace packages
+              ### Пространство имен пакетов
 
-              These are different from normal packages:
-              - they don't have `__init__.py`
-              - they don't have initialization code, nothing is executed when importing
+              Отличия от обычных пакетов:
+              - не имеют файла `__init__.py`
+              - не имеют инициализации; ничего не выполняется при импорте
 
-              They may help avoiding complex initialization ordering problems
+              Могут решать проблему порядка при сложной инициализации
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Namespace packages :: Algorithm detection
+              ### Пространство имен пакетов :: Порядок обнаружения
 
-              We try to `import foo`:
-              1. Python scans all entries in `sys.path` in order
-              1. If a matching directory with `__init__.py` is found, normal package is loaded
-              1. If `foo.py` is found, then it is loaded
-              1. Otherwise all matching directories in `sys.path` are considered as namespace package
+              Выполняем `import foo`:
+              1. Python сканирует все вхождения из `sys.path` по порядку
+              1. Если директория совпадает и имеет `__init__.py`, загружается обычный пакет
+              1. Если найден файл `foo.py`, тогда он загружается
+              1. В ином случае все совпадающие директории являются пространством имен пакетов
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Namespace packages
+              ### Пространство имен пакетов
 
-              Example:
+              Пример:
 
               ```
               namespace_package/
@@ -486,9 +486,9 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Namespace packages
+              ### Пространство имен пакетов
 
-              Ordering Example:
+              Пример порядка импорта:
 
               ```
               user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/ordering_example
@@ -532,18 +532,16 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              ### Executable directories
+              ### Исполняемые директории
 
-              There are directories where you specify
-              main entry point which is run when the package
-              is executed by Python
+              Это директории в которых указывается главная точка входа, код которой выполняется когда пакет исполняется Python
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Executable directories
+              ### Исполняемые директории
 
-              Example structure:
+              Пример структуры:
 
               ```
               printer/
@@ -556,12 +554,11 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Executable directories
+              ### Исполняемые директории
 
-              These allows us to execute entire package via:
+              Позволяют выполнить целый пакет используя:
 
               `python printer 'some message' 'another message'`
-
               ```
               user@host:~$ export PYTHONPATH=/python-notes/lectures/02-intermediate/01-modules-packages/examples/dir_exec
               user@host:~$ python printer
@@ -574,9 +571,9 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Executable directories
+              ### Исполняемые директории
 
-              Python supports archived executable directories
+              Python имеет поддержку архивированных исполняемых директорий
 
               ```
               user@host:~$ cd printer/
@@ -594,9 +591,9 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              ### Recommendations
+              ### Рекомендации
 
-              Recommended Project Layout
+              Рекомендованная структура проекта
 
               ```
               project_name/
@@ -615,55 +612,55 @@
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Recommendations
+              ### Рекомендации
 
-              - Prefer absolute imports over relative
-              - Avoid using `from module import *`
+              - Используйте абсолютный импорт вместо относительного
+              - Не используйте `from module import *`
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Recommendations
+              ### Рекомендации
 
-              Importing Style Guide
+              Стиль импорта
 
-              1. Imports should be on top, after comments/docstrings
-              1. Imports should be divided according to what is being imported:
-                - standard library imports
-                - related third party imports
-                - local application imports
-              1. Each group of imports should be separated by a blank space
+              1. Все импорты должны быть вверху, после комментариев
+              1. Все импорты группируются по следующим группам:
+                - импорты из стандартной библиотеки
+                - импорты сторонних модулей
+                - импорты локального проекта
+              1. Каждая группа импортов разделена пустой строкой
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Recommendations
+              ### Рекомендации
 
-              Singleton Pattern
+              Паттерн Одиночка
 
-              Singleton pattern - allows having only one instance of a specific class during the program execution
+              Это порождающий паттерн проектирования, который гарантирует, что у класса есть только один экземпляр, и предоставляет к нему глобальную точку доступа
 
-              One of the efficient ways of implementing singleton patterns in Python is using **modules as singletons**
+              Один из эффективных способов реализации этого паттерна - использование модулей
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Recommendations
+              ### Рекомендации
 
-              Singleton Pattern
+              Паттерн Одиночка
 
-              We implement it as a module level attribute
+              Реализуется как аттрибут на уровне модуля
 
-              Modules are executed once during import
+              Код модуля исполняется только **один раз** при импорте
 
-              This guarantees that our singleton will only be initialized once
+              Это гарантирует, что экземпляр класса будет создан только один раз
             </textarea>
           </section>
           <section data-markdown>
             <textarea data-template>
-              ### Recommendations
+              ### Рекомендации
 
-              Singleton Pattern Example:
+              Паттерн Одиночка (пример):
 
               ```
               user@host:~$ python main.py 
@@ -680,13 +677,13 @@
         <section>
           <section data-markdown>
             <textarea data-template>
-              ### Useful links
+              ### Полезные ссылки
 
               - [Python Modules and Packages – An Introduction](https://realpython.com/python-modules-packages/)
               - [Absolute vs Relative Imports in Python](https://realpython.com/absolute-vs-relative-python-imports/)
               - [Importing * in Python](https://medium.com/@s16h/importing-star-in-python-88fe9e8bd4d2)
               - [Use \__main\__.py](https://shaneoneill.io/2019/06/12/use-__main__-py/)
-              - [Design Patterns — A quick guide to Singleton pattern](https://medium.com/@andreaspoyias/design-patterns-a-quick-guide-to-singleton-pattern-60732ed43956)
+              - [Паттерн Одиночка](https://refactoring.guru/ru/design-patterns/singleton)
             </textarea>
           </section>
         </section>
