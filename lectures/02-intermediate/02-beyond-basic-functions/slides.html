@@ -1,0 +1,605 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: -10px;
+        left: -10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Beyond Basic Functions
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Beyond Basic Functions
+
+            - Functions Recap
+            - Callables
+            - Lambdas
+            - Extended Arguments and Call Syntax
+            - Forwarding Arguments
+            - Practical Example and Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Functions recap -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review
+
+              There are 2 kinds of arguments:
+
+              - positional
+              - keywords
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review
+
+              Argument kinds example:
+
+              ```
+              # ...
+              # some code above/below
+              # ...
+              my_foo(
+                  123,      # positional
+                  arg2=345  # keyword
+              )
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review
+
+              **Positional Argument** - Does not have keywords and are assigned first
+
+              **Keyword Argument** - Gives the name to the argument to the call site. It has keyword and are assigned second, after positional arguments. It can be provided in any order
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review
+
+              The distinction between positional and keyword arguments is made during the call site, not definition
+
+              The same argument can be passed as positional in one call and as keyword argument in another
+
+              Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def foo(a, b, c, d):
+              ...     return d - c - b - a
+              >>> foo(1, 2, 3, 4)
+              -2
+              >>> foo(1, 2, d=4, c=3)
+              -2
+              >>> foo(d=4, c=3, b=2, a=1)
+              -2
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review
+
+              In the function definition each argument can be given a default value
+
+              Example:
+
+              ```
+              def foo(a, b, c=3, d=4):
+                  return d - c - b - a
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review
+
+              **IMPORTANT NOTES**
+
+              1. Default value assignment is only evaluated once at the time when `def` is executed
+              2. All functions in Python are first-class, so they can be passed around like any other objects
+              3. Function objects are callable objects
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review :: Recursion
+
+              A recursive function is a function defined in terms of itself via self-referential expressions
+
+              Meaning that function calls itself inside
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review :: Recursion
+
+              ```
+              # Imperative
+              def fib(stop=10, debug=False):
+                  a, b = 0, 1
+                  for _ in range(0, stop):
+                      if debug:
+                          print(a)
+                      a, b = b, a + b
+                  return a
+
+              print('Imperative style')
+              print(fib(10, debug=True))
+
+              # Functional
+              def _fib(a, b, index=1, stop=10, debug=False):
+                  if index == stop:
+                      return a
+                  if debug:
+                      print(a)
+                  return _fib(a=b, b=(a + b), index=(index + 1), stop=stop, debug=debug)
+
+              def fib(stop=10, debug=False):
+                  return _fib(0, 1, 0, stop, debug)
+
+              print('Functional style')
+              print(fib(10, debug=True))
+
+              # Functional Alternative
+              def fib2(n):
+                 if n <= 1:
+                     return n
+                 else:
+                     return fib2(n - 1) + fib2(n - 2)
+
+              print('Alt Functional style')
+              print(fib2(10))
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Callables -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Callables
+
+              A callable is anything you can call, using parenthesis, and possibly passing arguments
+
+              `something()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Callables
+
+              `__call__()` - speical method that allows object to become callable just like functions
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28)
+              >>> class Foo:
+              ...     def __init__(self, a, b):
+              ...         self.a = a
+              ...         self.b = b
+              ...         self.call_count = 0
+              ...     def __call__(self):
+              ...         self.call_count += 1
+              ...         print(f'called! this instance was called {self.call_count} times')
+              >>> foo_instance = Foo(1, 2)
+              >>> foo_instance()
+              called! this instance was called 1 times
+              >>> foo_instance()
+              called! this instance was called 2 times
+              >>> foo_instance()
+              called! this instance was called 3 times
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Callables :: Detection
+
+              To determine if an object is callable, pass the object to the built-in function: `callable()` which returns boolean
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28)
+              >>> class Foo:
+              ...   pass
+              >>> class Bar:
+              ...   def __call__(self):
+              ...     pass
+              >>> callable(Foo)
+              True
+              >>> foo = Foo()
+              >>> callable(foo)
+              False
+              >>> bar = Bar()
+              >>> callable(bar)
+              True
+              >>> a = 10
+              >>> def b():
+              ...   return 10
+              >>> callable(a)
+              False
+              >>> callable(b)
+              True
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Lambdas -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Lambdas
+
+              Lambda functions are small anonymous functions
+
+              `lambda <arg1, arg2>: <expr>`
+
+              ```
+              def identity(x):
+                  return x
+              # the same as
+              lambda x: x
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Lambdas :: Overview
+
+              - Syntax: `lambda x: x.split()[1]`
+              - It's an expression which evaluates to a function
+              - Have no name
+              - Args: list terminated by a colon, separated by commas
+              - Args: zero or more args supported: `lambda: foo()`
+              - Body is a single expression
+              - The return value is given by the body expression; no return keyword
+              - Awkward or impossible to test
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Lambdas
+
+              Examples:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28)
+              >>> poets = ['Mikhail Lermontov', 'Alexander Block', 'Sergey Esenin', 'Alexander Pushkin', 'Vladimir Mayakovsky', 'Fedor Tyutchev']
+              >>> list(sorted(poets))
+              ['Alexander Block', 'Alexander Pushkin', 'Fedor Tyutchev', 'Mikhail Lermontov', 'Sergey Esenin', 'Vladimir Mayakovsky']
+              >>> list(sorted(poets, key=lambda surname: surname.split()[1]))
+              ['Alexander Block', 'Sergey Esenin', 'Mikhail Lermontov', 'Vladimir Mayakovsky', 'Alexander Pushkin', 'Fedor Tyutchev']
+              >>> list(map(lambda x: x ** 3, range(1, 11)))
+              [1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Lambdas
+
+              **NOTE**
+
+              Use `lambda` with care with comprehensions, since it can make code hard to read
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Lambdas
+
+              Hardcore Examples:
+
+              ```
+              def f(x):
+                  return x+5
+              print f(13)
+              # the same as
+              (lambda f: print(f(13)))(lambda x: x+5)
+              # the same as
+              (lambda builtins: (lambda __print, __y, d: [__print(d.f(13)) for d.f in [(lambda x:[(d.x+5) for d.x in [(x)]][0])]][0])(builtins.__dict__['print'],(lambda f: (lambda x: x(x))(lambda y: f(lambda *args: y(y)(*args)))),type('StateDict',(),builtins.__dict__)()))(__import__('builtins'))
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Extended Arguments and Call Syntax -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax
+
+              Allows us to collect undefined amount of arguments into collection
+
+              `*args` - collects only positional arguments
+              `**kwargs` - collects keyword arguments
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax
+
+              `*args` example:
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def hypervolume(length, *lengths):
+              ...     v = length
+              ...     for item in lengths:
+              ...         v *= item
+              ...     return v
+              >>> start = 2
+              >>> print(hypervolume(start, 1, 2, 3, 4, 5, 6, 7, 8))
+              80640
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax
+
+              `**kwargs` example:
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def tag(name, **attributes):
+              ...     tag_open = '<{} '.format(name)
+              ...     attrs = ' '.join(['{}="{}"'.format(attr, value) for attr, value in attributes.items()])
+              ...     tag_close = '>'
+              ...     return ''.join([tag_open, attrs, tag_close])
+              >>> print(tag('div', id='12345', style='padding: 10px'))
+              <div id="12345" style="padding: 10px">
+              >>> print(tag('img', src='path/to/image', width='100px', height='100px', alt='nice picture'))
+              <img width="100px" src="path/to/image" alt="nice picture" height="100px">
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax
+
+              **NOTES**
+
+              - It's possible to use whatever name after `*` or `**`
+              - Both types can be accepted by callables
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax
+
+              Combining positional args and keyword args is allowed, but order should be retained:
+
+              - `*args` must always preceed `**kwargs`
+              - any args before `*args` are considered as ordinary positional args
+              - any args after `*args` should be considered as mandatory keyword args
+              - `**kwargs` should be last in the list if presented
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax
+
+              Full Example:
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def foo(pos_arg1, pos_arg2, *args, kwarg1, kwarg2, **kwargs):
+              ...     print('pos_arg1 = {}'.format(pos_arg1))
+              ...     print('pos_arg2 = {}'.format(pos_arg2))
+              ...     print('*args = {}'.format(args))
+              ...     print('kwarg1 = {}'.format(kwarg1))
+              ...     print('kwarg2 = {}'.format(kwarg2))
+              ...     print('**kwargs = {}'.format(kwargs))
+              >>> foo('uno', 'dos', 'tres', 'cuatro', kwarg1='sinco', kwarg2='seis', kwarg3='siete', kwarg4='ocho')
+              pos_arg1 = uno
+              pos_arg2 = dos
+              *args = ('tres', 'cuatro')
+              kwarg1 = sinco
+              kwarg2 = seis
+              **kwargs = {'kwarg3': 'siete', 'kwarg4': 'ocho'}
+              >>> foo(kwarg5='ololo', 'uno', 'dos', 'tres', 'cuatro', kwarg1='sinco', kwarg2='seis', kwarg3='siete', kwarg4='ocho')
+                File "<stdin>", line 1
+              SyntaxError: positional argument follows keyword argument
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax
+
+              Extended Call Syntax
+
+              It allows using iterable series such as a tuple to populate positional and keyword arguments (kwargs for mapping dictionaries)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Extended Arguments and Call Syntax :: Example
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def sum_four(arg1, arg2, arg3, arg4):
+              ...     return sum([arg1, arg2, arg3, arg4])
+              >>> def slow_sum(start, *items):
+              ...     result = start
+              ...     for item in items:
+              ...         result += item
+              ...     return result
+              >>> def swap_keys_values(**kwargs):
+              ...     return {val: key for key, val in kwargs.items()}
+              >>> seq1 = range(1, 101)
+              >>> seq2 = [2, 4, 6, 8]
+              >>> print(slow_sum(0, *seq1))
+              5050
+              >>> print(slow_sum(100, *seq2))
+              120
+              >>> values = (1, 2, 3, 4)
+              >>> print(sum_four(values[0], values[1], values[2], values[3]))
+              10
+              >>> print(sum_four(*(1, 2, 3, 4)))
+              10
+              >>> d = dict(uno='one', dos='two', tres='three', cuatro='four')
+              >>> print(swap_keys_values(**d))
+              {'one': 'uno', 'four': 'cuatro', 'three': 'tres', 'two': 'dos'}
+              ```
+            </textarea>
+          </section>
+
+        </section>
+
+        <!-- Slide Group: Forwarding Arguments -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Forwarding Arguments
+
+              One of the most common uses of `*args` and `**kwargs` is arguments forwarding from one function to another
+
+              By convention `*args` and `**kwargs` names are used when arguments forwarding
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Forwarding Arguments
+
+              Example:
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def trace(func, *args, **kwargs):
+              ...     print(args)
+              ...     print(kwargs)
+              ...     result = func(*args, **kwargs)
+              ...     print(result)
+              ...     return result
+              >>> trace(int, "ff", base=16)
+              ('ff',)
+              {'base': 16}
+              255
+              255
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Practical Example and Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Practical Example and Recommendations
+
+              Transposition swaps rows to columns and vise versa
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> a = [[1, 2, 3, 4],
+              ...      [5, 6, 7, 8],
+              ...      [9,10,11,12]]
+              >>> for i in zip(*a):
+              ...     print(i)
+              (1, 5, 9)
+              (2, 6, 10)
+              (3, 7, 11)
+              (4, 8, 12)
+              >>> trans_a = list(zip(*a))
+              >>> trans_a
+              [(1, 5, 9), (2, 6, 10), (3, 7, 11), (4, 8, 12)]
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              - `*args` and `**kwargs` are useful when maintaining backward compatibility in an API
+              - don't overuse `*args` and `**kwargs`
+              - try to avoid `lambda` where it is not necessary
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [Python’s Functions Are First-Class](https://dbader.org/blog/python-first-class-functions)
+              - [Thinking Recursively in Python](https://realpython.com/python-thinking-recursively/)
+              - [Is it a class or a function? It's a callable!](https://treyhunner.com/2019/04/is-it-a-class-or-a-function-its-a-callable/)
+              - [Intro to Python Lambda Functions](https://www.pythonforthelab.com/blog/intro-to-python-lambda-functions/)
+              - [How to Use Python lambda Functions](https://realpython.com/python-lambda/)
+              - [Overusing lambda expressions in Python](https://treyhunner.com/2018/09/stop-writing-lambda-expressions/)
+              - [Yet Another Lambda Tutorial](https://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/)
+              - [Keyword (Named) Arguments in Python: How to Use Them](https://treyhunner.com/2018/04/keyword-arguments-in-python/)
+            </textarea>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
