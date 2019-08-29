@@ -1,0 +1,703 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: -10px;
+        left: -10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Closures and Decorators
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Closures and Decorators
+
+            - Local Functions
+            - Closures
+            - Function Factories
+            - Nonlocal Keyword
+            - Function Decorators
+            - Classes as Decorators
+            - Decorators Notes
+            - Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Local Functions -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Local Functions
+
+              These are functions that are defined in scope of other functions
+
+              Outer `def` - is used to define new functions and it binds the body of the function to a name
+
+              Inner `def` - is executed at runtime
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Local Functions
+
+              Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def foo(strings):
+              ...     def last_letter(s):
+              ...         return s[-1]
+              ...     return sorted(strings, key=last_letter)
+              >>> foo('my string')
+              [' ', 'g', 'i', 'm', 'n', 'r', 's', 't', 'y']
+              >>> def sort_by_count(coll):
+              ...     d = dict()
+              ...     def by_count(item):
+              ...         return d[item], item
+              ...     for item in coll:
+              ...         d[item] = d.get(item, 0) + 1
+              ...     return sorted(d, key=by_count)
+              >>> coll = ['uno', 'uno', 'dos', 'tres', 'tres', 'uno', 'tres', 'dos', 'tres', 'tres', 'das', 'das', 'das', 'dos', 'tres']
+              >>> # uno = 3; dos = 3; das = 3; tres = 6
+              >>> sort_by_count(coll)
+              ['das', 'dos', 'uno', 'tres']
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Local Functions
+
+              ```
+              def foo(strings):
+                  ...
+                  def last_letter(s):
+                      ...
+              ```
+
+              The definition of the local functions happens at runtime, when inner `def` key is executed
+
+              It means that each call of `foo()` results to a new definition of the `last_letter()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Local Functions
+
+              Local functions are subject of the same scoping rules as the other functions
+
+              The checking happens in the order according to **LEGB rule**
+
+              **LEGB Rule**
+
+              - Local Scope
+              - Enclosing Scope
+              - Global Scope
+              - Built-in Scope
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Local Functions
+
+              **Note**: Local Functions **are not members** of the containing function
+
+              They can be used in the following cases:
+
+              - Useful for specialized, one-off functions
+              - Aid in code organization and readability
+              - Similar to lambdas, but more general
+                - May contain multiple expressions
+                - May contain statements
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Closures -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Closures
+
+              Local functions can be returned from functions
+
+              Since functions in Python are first-class functions, it allows us to treat functions like any other object
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Closures
+
+              Closure is a special form of local function
+
+              Closure remembers objects from the enclosing scope that the local function needs, then it keeps them alive so when the local function is executed objects can still be used
+
+              Local function closes over the objects it needs hence preventing objects from being garbage collected
+
+              Closures maintain references to objects from earlier scopes
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Closures
+
+              Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def foo():
+              ...     x = 'ololo'
+              ...     def local_func():
+              ...         print(x)
+              ...     return local_func
+              >>> foo()
+              <function foo.<locals>.local_func at 0x7f10d268ba60>
+              >>> f = foo()
+              >>> f()
+              ololo
+              >>> f.__closure__
+              (<cell at 0x7f10d271c078: str object at 0x7f10d26f6dc0>,)
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Function Factories -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Factories
+
+              A very common use for closures are function factories
+            
+              These factories are functions that return other functions, and returned functions are specialized in some way based to arguments to the factory
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Factories
+
+              Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def raise_to(exp):
+              ...     def raise_to_exp(x):
+              ...         return pow(x, exp)
+              ...     return raise_to_exp
+              >>> square = raise_to(2)
+              >>> cube = raise_to(3)
+              >>> square(12)
+              144
+              >>> cube(3)
+              27
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Nonlocal Keyword -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Nonlocal Keyword
+
+              **nonlocal** keyword inserts a name binding from the enclosing namespace into the local namespace
+
+              **nonlocal** searches the enclosing namespace from inner most to outer most for the specified name, as soon as it finds the match the binding is introduced to the scope where **nonlocal** was invoked
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Nonlocal Keyword
+
+              Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import time
+              >>> def make_timer():
+              ...     last_called = None
+              ...     def elapsed():
+              ...         nonlocal last_called
+              ...         now = time.time()
+              ...         if last_called is None:
+              ...             last_called = now
+              ...             return None
+              ...         result = now - last_called
+              ...         last_called = now
+              ...         return result
+              ...     return elapsed
+              >>> t = make_timer()
+              >>> t()
+              >>> t()
+              4.3460373878479
+              >>> t()
+              4.459432125091553
+              >>> t()
+              1.7023670673370361
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Function Decorators -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators
+
+              Decorators are a way to modify or to enhance existing functions in a non-intrusive and maintainable way
+
+              In Python decorators are callables that take and return other callables
+
+              **Decorator Syntax**:
+
+              ```
+              @my_decorator
+              def my_function():
+                  ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators
+
+              1. When Python sees decorator it compiles the base function
+              2. Then Python passes the function object to the decorator function
+              3. After calling the decorator with original function, Python takes the return value from the decorator and binds it to the name of the original function
+              4. The end result is the original function name that is bound to result of calling the decorator with the function created by the original function
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators :: How It Works
+
+              ![function decorators](images/decorators_01.jpg)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators
+
+              Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def escape_unicode(func):
+              ...     def wrapped(*args, **kwargs):
+              ...         result = func(*args, **kwargs)
+              ...         return ascii(result)
+              ...     return wrapped
+              >>> def russian_city():
+              ...     return 'Нижневартовск'
+              >>> russian_city()
+              'Нижневартовск'
+              >>> @escape_unicode
+              ... def russian_city():
+              ...     return 'Нижневартовск'
+              >>> russian_city()
+              "'\\u041d\\u0438\\u0436\\u043d\\u0435\\u0432\\u0430\\u0440\\u0442\\u043e\\u0432\\u0441\\u043a'"
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators :: Old Style
+
+              Decorators were introduced in Python 2.4, before that decorators can be implemented like that:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> import time
+              >>> from collections import deque
+              >>> def timeit(func):
+              ...     def wrapped(*args, **kwargs):
+              ...         start = time.time()
+              ...         result = func(*args, **kwargs)
+              ...         print(time.time() - start)
+              ...         return result
+              ...     return wrapped
+              >>> def digitalize(num):
+              ...     result = deque()
+              ...     while num > 0:
+              ...         result.appendleft(num % 10)
+              ...         num //= 10
+              ...     return result
+              >>> def digitalize2(num):
+              ...     return [int(item) for item in list(str(num))]
+              >>> digitalize = timeit(digitalize)
+              >>> digitalize2 = timeit(digitalize2)
+              >>> digitalize(12345678901234567890)
+              2.8371810913085938e-05
+              deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
+              >>> digitalize2(12345678901234567890)
+              8.511543273925781e-05
+              [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators
+
+              Summary:
+
+              - Replace, enhance, or modify existing functions
+              - Does not change the original function definition
+              - Calling code does not need to change
+              - Decorator mechanism uses the modified function's original name
+
+              **NOTE**: Decorators takes callable objects as the only argument and require returning callable objects
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators
+
+              Misc Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> def subtract_decor(func):
+              ...     def wrapped(*args, **kwargs):
+              ...         if len(args) < 2:
+              ...             raise Error('Too few arguments')
+              ...         return args[0] - args[1]
+              ...     return wrapped
+              >>> @subtract_decor
+              ... def sum(a, b):
+              ...     return a + b
+              >>> sum(15, 11)
+              4
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Function Decorators :: Parameterized
+
+              Example:
+
+              ```
+              # parametrized
+              def ornament_me(sym):
+                  def outer(f):
+                      def inner(*args,**kwargs):
+                          string = ''.join([sym, ' ', f(*args,**kwargs), ' ', sym])
+                          top = bottom = sym * len(string)
+                          return ''.join([top, '\n', string, '\n', bottom])
+                      return inner
+                  return outer
+
+              @ornament_me(sym='#')
+              def get_text(text):
+                  return text
+
+              >>> print(get_text('dsfgsfdgsdfgd'))
+
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Classes as Decorators -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Classes as Decorators
+
+              Classes are callable, so we can use them as decorators
+
+              ```
+              @MyClassDecor
+              def foo(): ...
+              ```
+
+              Applying a class decorator creates a new instance, hence the instance must be callable
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Classes as Decorators
+
+              Example:
+
+              ```
+              user@host:~$ python
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28) 
+              >>> class RemoteLogPusher:
+              ...   destination = '192.168.100.15'
+              ...   def __init__(self, f):
+              ...     self.f = f
+              ...   def __call__(self, *args, **kwargs):
+              ...     self.push_msg(self.f.__name__, *args, **kwargs)
+              ...     return self.f(*args, **kwargs)
+              ...   def push_msg(self, foo, *args, **kwargs):
+              ...     print('Pushing message to {dest} from: "{name}"" called with args: "{args}" and kwargs: "{kwargs}"'.format(dest=RemoteLogPusher.destination, name=foo, args=args, kwargs=kwargs))
+              >>> @RemoteLogPusher
+              ... def hello(*args):
+              ...   for i in args:
+              ...     print('Hello, {}'.format(i))
+              >>> hello('lena', 'tanya', 'grisha', 'natasha')
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Classes as Decorators :: Parameterized
+
+              Example:
+
+              ```
+              class RemoteLogPusher:
+                  def __init__(self, destination):
+                      self.destination = destination
+                  def __call__(self, f):
+                      def wrapped(*args, **kwargs):
+                          self.push_msg(f.__name__, *args, **kwargs)
+                          return f(*args, **kwargs)
+                      return wrapped
+                  def push_msg(self, foo, *args, **kwargs):
+                      print('Pushing message to {dest} from: "{name}" called with args: "{args}" and kwargs: "{kwargs}"'.format(dest=self.destination, name=foo, args=args, kwargs=kwargs))
+
+              @RemoteLogPusher('192.168.134.15')
+              def hello(*args):
+                  for i in args:
+                      print('Hello, {}'.format(i))
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Instances as Decorators
+
+              When we call a class instance as a decorator, Python calls that instance (`__call__()`) with the original function and uses returned value from `__call__()` as the new function
+
+              **NOTE**: These kinds of decorators are useful for creating collections of decorated functions which can be dynamically controlled in some way
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Instances as Decorators
+
+              Example:
+
+              ```
+              >>> class RemoteLogPusher:
+              ...   def __init__(self, destination, enabled=True):
+              ...     self.destination = destination
+              ...     self.enabled = enabled
+              ...   def __call__(self, f):
+              ...     def wrap(*args, **kwargs):
+              ...       if self.enabled:
+              ...         self.push_msg(f.__name__, *args, **kwargs)
+              ...       return f(*args, **kwargs)
+              ...     return wrap
+              ...   def push_msg(self, foo, *args, **kwargs):
+              ...     print('Pushing message to {dest} from: "{name}"" called with args: "{args}" and kwargs: "{kwargs}"'.format(dest=self.destination, name=foo, args=args, kwargs=kwargs))
+              >>> aws_logger = RemoteLogPusher('aws://aws-logger-ip-address')
+              >>> heroku_logger = RemoteLogPusher('heroku://heroku-logger-ip-address', enabled=False)
+              >>> @aws_logger
+              ... def hello(name):
+              ...   print('Hello, {}'.format(name))
+              >>> @heroku_logger
+              ... def goodbye(name):
+              ...   print('Goodbye, {}'.format(name))
+              >>> hello('Lena')
+              >>> goodbye('Barak Khuseinovich')
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Instances as Decorators :: Parameterized
+
+              Example:
+
+              ```
+              class RemoteLogPusher:
+
+                def __init__(self, destination, enabled=True):
+                  self.destination = destination
+                  self.enabled = enabled
+
+                def __call__(self, flag):
+                  def outer(f):
+                    def wrap(*args, **kwargs):
+                      if self.enabled:
+                        self.push_msg(flag, f.__name__, *args, **kwargs)
+                      return f(*args,**kwargs)
+                    return wrap
+                  return outer
+
+                def push_msg(self, flag, foo, *args, **kwargs):
+                  print('Flag: {flag}! Pushing message to {dest} from: "{name}"" called with args: "{args}" and kwargs: "{kwargs}"'.format(dest=self.destination, name=foo, args=args, kwargs=kwargs, flag=flag))
+
+              aws_logger = RemoteLogPusher('aws://aws-logger-ip-address')
+
+              @aws_logger(1380)
+              def hello(name):
+                print('Hello, {}'.format(name))
+
+              hello('Masha')
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Decorators Notes -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Decorators Notes :: Multiple Decorators
+
+              It is possible to use more than one decorator at a time
+
+              Multiple decorators are **processed in reverse order**
+
+              Example:
+
+              ```
+              @dec1           # processed third
+              @dec2           # processed second
+              @dec3           # processed first
+              def my_function():
+                  ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Decorators Notes :: Decorating Class Methods
+
+              It is possible to decorate methods on classes
+
+              Example:
+
+              ```
+              def my_decorator(func):
+                  ...
+
+              class MyClass:
+
+                  def __init__():
+                      ...
+
+                  @my_decorator
+                  def my_method(self):
+                      ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Decorators Notes :: wraps()
+
+              A problem with direct decorators usage: by replacing a function with another callable **we loose important metadata** about original function and this may lead to confusing results and debugging difficulties in some cases
+
+              `functools.wraps()` is a function decorator which is applied to a wrapper function. The decorator takes the function to be decorated as its argument and it updates our wrapper function with the wrapped function attributes.
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Decorators Notes :: wraps()
+
+              In other words: it almost properly updates metadata on wrapped functions
+
+              ```
+              import functools
+
+              def my_decorator(func):
+                  @functools.wraps(func)
+                  def wrapper(*args, **kwargs):
+                      ...
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              Decorators Summary:
+
+              - Decorators are a powerful tool
+              - Decorators are widely used in Python and frameworks
+              - It is possible to overuse decorators; please be mindful
+              - Decorators may improve maintainability, increase clarity and reduce complexity
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [A Python Tutorial To Understanding Scopes and Closures](https://medium.com/@dannymcwaves/a-python-tutorial-to-understanding-scopes-and-closures-c6a3d3ba0937)
+              - [Primer on Python Decorators](https://realpython.com/primer-on-python-decorators/)
+              - [Decorators and monkey patching](http://blog.dscpl.com.au/p/decorators-and-monkey-patching.html)
+            </textarea>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
