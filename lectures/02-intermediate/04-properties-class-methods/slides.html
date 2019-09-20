@@ -1,0 +1,741 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: -10px;
+        left: -10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Properties and Class Methods
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Properties and Class Methods
+
+            - Class Attributes
+            - Static Methods
+            - Class Methods
+            - Static Methods With Inheritance
+            - Class Methods With Inheritance
+            - Properties
+            - Properties And Inheritance
+            - Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Class Attributes -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Attributes
+
+              These are attributes that are associated with the class, and not with each instance
+
+              These attributes share values between all instances of the class
+
+              These are created by assigning attribute names to the body of the class
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Attributes
+
+              Example:
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28)
+              >>> class Foo:
+              ...     class_attr = 'ololo'
+              ...     def __init__(self, a, b):
+              ...         self.a = a
+              ...         self.b = b
+              >>> foo_1 = Foo(1, 2)
+              >>> foo_2 = Foo(100, 200)
+              >>> foo_3 = Foo('a', 'b')
+              >>> foo_1.class_attr
+              'ololo'
+              >>> foo_2.class_attr
+              'ololo'
+              >>> foo_3.class_attr
+              'ololo'
+              >>> foo_1.a
+              1
+              >>> foo_1.b
+              2
+              >>> foo_2.a
+              100
+              >>> foo_2.b
+              200
+              >>> Foo.class_attr = 'alala'
+              >>> foo_1.class_attr
+              'alala'
+              >>> foo_3.class_attr
+              'alala'
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Attributes
+
+              If we attempt to assign to an existing class attribute through the `self` reference, we create a new instance attribute which hides the class attribute
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28)
+              >>> class Foo:
+              ...     class_attr = 'ololo'
+              ...     def __init__(self, a, b):
+              ...         self.a = a
+              ...         self.b = b
+              >>> foo_1 = Foo(1, 2)
+              >>> foo_2 = Foo(100, 200)
+              >>> foo_3 = Foo('a', 'b')
+              >>> foo_1.class_attr = 'hello'
+              >>> foo_1.class_attr
+              'hello'
+              >>> foo_2.class_attr
+              'ololo'
+              >>> foo_3.class_attr
+              'ololo'
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Static Methods -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Static Methods
+
+              A static method is part of a class definition, but is not part of the objects it creates
+
+              A program can execute a static method without first creating an object
+
+              Static methods take neither a `self` nor a `cls` parameter, but they're free to accept arbitrary other args
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Static Methods
+
+              To convert method to a static method we decorate the method with `@staticmethod` decorator and remove unused `self` argument
+
+              ```
+              Python 3.6.8 (default, Jan 17 2019, 12:46:28)
+              >>> class Bar:
+              ...     def __init__(self, a, b):
+              ...         self.a = a
+              ...         self.b = b
+              ...     def sum(self):
+              ...         return self.a + self.b
+              ...     @staticmethod
+              ...     def baz():
+              ...         return 'this is static method'
+              >>> Bar.baz()
+              'this is static method'
+              >>> b = Bar(33, 55)
+              >>> b.sum()
+              88
+              >>> b.baz()
+              'this is static method'
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Static Methods
+
+              Pro Example (from **peewee** ORM)
+
+              [Link to Source](https://github.com/coleifer/peewee/blob/00f32293e99bc7ad90f4706bd6b46d88f200b431/peewee.py#L1582)
+
+              ```
+              class Window(Node):
+                  # Frame start/end and frame exclusion.
+                  ...
+                  @staticmethod
+                  def following(value=None):
+                      if value is None:
+                          return SQL('UNBOUNDED FOLLOWING')
+                      return SQL('%d FOLLOWING' % value)
+                  ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Static Methods :: Notes and When to Use
+
+              - No access needed either class or instance objects
+              - No access to the attributes of an instance of a class and to the class itself
+              - Can be moved to become a module-scope function
+              - Use when you don't need to operate on a specific object, but you still want that located in the scope of the class because it's somehow semantically related to the class
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Class Methods -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods
+
+              A class method is a method that is bound to a class rather than its object 
+
+              Class method doesn't require creation of a class instance, much like staticmethod, but has access to class attributes
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods
+
+              `@classmethod` sets the class object as the 1st formal argument
+
+              By convention `cls` is used as the 1st formal argument
+
+              The `cls` argument for class methods plays the same role as `self` arguments for instances
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods
+
+              Example (syntax):
+
+              ```
+              class Foo:
+
+                  @classmethod
+                  def bar(cls):
+                      cls.name = 'ololo'
+                      ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods
+
+              **NOTES**
+
+              Requires access to class object to call other class methods or the constructor
+
+              Sometimes we want a class to support named constructors, which construct objects with certain configuration
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods
+
+              Example (complete):
+
+              ```
+              class Point:
+
+                  def __init__(self, x, y):
+                      self.x = x
+                      self.y = y
+
+                  def __repr__(self):
+                      return f'(x = {self.x}, y = {self.y})'
+
+
+              class Quadrangle:
+
+                  def __init__(self, p1, p2, p3, p4):
+                      """ Constructs quadrangle from points
+
+                      :param: p1 (Point) - First point
+                      :param: p2 (Point) - Second point
+                      :param: p3 (Point) - Third point
+                      :param: p4 (Point) - Fourth point
+                      """
+                      self.p1 = p1
+                      self.p2 = p2
+                      self.p3 = p3
+                      self.p4 = p4
+
+                  def area(self):
+                      raise NotImplementedError()
+
+                  def __repr__(self):
+                      return f'p1 = {self.p1}, p2 = {self.p2}, p3 = {self.p3}, p4 = {self.p4}'
+
+                  @classmethod
+                  def from_values(cls, *values):
+                      """ Constructs quadrangle from values
+                      """
+                      if len(values) != 8:
+                          raise Exception(f'Required coordinates mismatch. Want 8, got {len(values)}')
+                      points = [Point(values[val * 2], values[val * 2 + 1]) for val in range(len(values) // 2)]
+                      return cls(*points)
+
+                  @classmethod
+                  def create_empty(cls):
+                      return cls(None, None, None, None)
+
+                  @classmethod
+                  def from_lst(cls, lst):
+                      if not isinstance(lst, list):
+                          raise Exception(f'Want list. Got {type(lst)}')
+                      return cls.from_values(*lst)
+        
+              if __name__ == '__main__':
+                  default_quadrangle = Quadrangle(Point(0, 0), Point(5, 5), Point(3, 6), Point(10, 13))
+                  print(f'Default quadrangle: {default_quadrangle}')
+                  # ==> Default quadrangle: p1 = (x = 0, y = 0), p2 = (x = 5, y = 5), p3 = (x = 3, y = 6), p4 = (x = 10, y = 13)
+                  vals_quadrangle = Quadrangle.from_values(0, 3, 10, 8, 8, 12, 16, 14)
+                  print(f'From values quadrangle: {vals_quadrangle}')
+                  # ==> From values quadrangle: p1 = (x = 0, y = 3), p2 = (x = 10, y = 8), p3 = (x = 8, y = 12), p4 = (x = 16, y = 14)
+                  empty_quadrangle = Quadrangle.create_empty()
+                  print(f'Create empty quadrangle: {empty_quadrangle}')
+                  # ==> Create empty quadrangle: p1 = None, p2 = None, p3 = None, p4 = None
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Static Methods
+
+              Pro Example (from **SQLalchemy** ORM)
+
+              [Link to Source](https://github.com/sqlalchemy/sqlalchemy/blob/master/lib/sqlalchemy/dialects/mssql/pymssql.py#L60)
+
+              ```
+              class MSDialect_pymssql(MSDialect):
+                  supports_native_decimal = True
+                  driver = "pymssql"
+
+                  ...
+
+                  @classmethod
+                  def dbapi(cls):
+                      module = __import__("pymssql")
+                      # pymmsql < 2.1.1 does not have a Binary method.  we use string
+                      client_ver = tuple(int(x) for x in module.__version__.split("."))
+                      if client_ver < (2, 1, 1):
+                          # TODO: monkeypatching here is less than ideal
+                          module.Binary = lambda x: x if hasattr(x, "decode") else str(x)
+
+                      if client_ver < (1,):
+                          util.warn(
+                              "The pymssql dialect expects at least "
+                              "the 1.0 series of the pymssql DBAPI."
+                          )
+                      return module
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods :: When to Use
+
+              - when you need to have methods that aren't specific to any particular instance, but still involve the class in some way
+              - factory methods (alternative/named constructors)
+              - when you are doing set-up that precedes the creation of an actual instance, because until the instance exists you cannot use the instance as the dispatch point for your method calls
+              - when you want to access a property of a class as a whole, and not the property of a specific instance of that class
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Static Methods With Inheritance -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Static Methods With Inheritance
+
+              In Python **static methods** can be overwritten in subclasses
+
+              **NOTE**: If you need polimorphic dispatch of **static methods** invocations - call through the `self` instance
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Static Methods With Inheritance
+
+              Example:
+
+              ```
+              class MyBase:
+
+                  @staticmethod
+                  def baz():
+                      return 'baz() from MyBase'
+
+              class Foo(MyBase):
+
+                  def __init__(self, a, b):
+                      self.a = a
+                      self.b = b
+
+                  def sum(self):
+                      return self.a + self.b
+
+              class Bar(MyBase):
+
+                  def __init__(self, c):
+                      self.c = c
+
+                  def multi(self, n):
+                      return pow(self.c, n)
+
+                  @staticmethod
+                  def baz():
+                      return 'baz() from Bar'
+
+              print(MyBase.baz())
+              # ==> baz() from MyBase
+
+              print(Foo.baz())
+              # ==> baz() from MyBase
+
+              foo = Foo(1, 2)
+              print(foo.baz())
+              # ==> baz() from MyBase
+
+              print(Bar.baz())
+              # ==> baz() from Bar
+
+              bar = Bar(100)
+              print(bar.baz())
+              # ==> baz() from Bar
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Class Methods With Inheritance -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods With Inheritance
+
+              The **class methods** we define in the base class will be inherited by the subclass
+
+              `cls` argument of **class methods** will be set appropriately
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Class Methods With Inheritance
+
+              Example:
+
+              ```
+              from classmethod_ import Point, Quadrangle
+
+              class Rectangle(Quadrangle):
+
+                  def __init__(self, lt, rb, p2=None, p3=None):
+                      """ Constructs rectangle
+
+                      :param: lt (Point) - left top
+                      :param: rb (Point) - right bottom
+                      """
+                      super().__init__(lt, p2, p3, rb)
+
+                  def get_area(self):
+                      return abs((self.p4.x - self.p1.x) * (self.p4.y - self.p1.x))
+
+              default_rect = Rectangle(Point(0, 0), Point(5, 10))
+              print(f'Default Rectangle: {default_rect.get_area()}')
+              # ==> Default Rectangle: 50
+              empty_rect = Rectangle.create_empty()
+              print(f'Empty Rectangle: {empty_rect}')
+              # ==> Empty Rectangle: p1 = None, p2 = None, p3 = None, p4 = None
+              listed_rect = Rectangle.from_lst([1, 2, 3, 4, 5, 6, 7, 8])
+              print(f'Listed Rectangle: {listed_rect.get_area()}')
+              # ==> Listed Rectangle: 6
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Properties -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties
+
+              The `@property` decorator converts method that is decorated into something when access behaves like an attribute
+
+              The `@property` decorator can be used to transform getter methods, so that those can be called as if there were attributes
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties
+
+              Example:
+
+              ```
+              >>> class Example:
+              ...     def __init__(self, t):
+              ...         self._t = t
+              ...     @property
+              ...     def t(self):
+              ...         print('property method is called')
+              ...         return self._t
+              ...     @t.setter
+              ...     def t(self, value):
+              ...         print('property setter method is called')
+              ...         self._t = value
+              >>> ex = Example(100)
+              >>> ex.t
+              property method is called
+              100
+              >>> ex.t = 200
+              property setter method is called
+              >>> ex.t
+              property method is called
+              200
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties :: How It Works
+
+              ![Property Decorator](images/property_decorator.jpg)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties :: How It Works
+
+              The `property()` function returns a special descriptor object
+
+              This object has extra methods: `property().getter`, `property().setter`, `property().deleter`
+
+              These act as decorators. They return a new property object that is a copy of the old object, but with one of the functions replaced
+            </textarea>
+          </section>
+
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties
+
+              Example (complete):
+
+              ```
+              class Thermometer:
+
+                  def __init__(self, temp, _max=None):
+                      self._temp = temp
+                      self.max = _max
+                      self._access_count = 0
+
+                  @property
+                  def temp(self):
+                      self._access_count += 1
+                      return self._temp
+
+                  @temp.setter
+                  def temp(self, value):
+                      if self.max and value > self.max:
+                          raise ValueError('Temperature is too large')
+                      self._temp = value
+
+              if __name__ == '__main__':
+                  therm = Thermometer(16, _max=30)
+                  print(f'Temperature: {therm.temp}')
+                  # Temperature: 16
+                  therm.temp = 0
+                  print(f'Temperature: {therm.temp}')
+                  # Temperature: 0
+                  try:
+                      therm.temp = 40
+                  except ValueError as ex:
+                      print(f'Exception: {ex}')
+                      # Exception: Temperature is too large
+                  print(f'Temperature was accessed {therm._access_count} times')
+                  Temperature was accessed 2 times
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties
+
+              Pro Example (from **flask** web framework)
+
+              [Link to Source](https://github.com/pallets/flask/blob/1351d0a56580df36872b466eb245e7634c20dab5/src/flask/wrappers.py#L71)
+
+              ```
+              class Request(RequestBase, JSONMixin):
+
+                  url_rule = None
+                  ...
+
+                  @property
+                  def endpoint(self):
+                      """The endpoint that matched the request.  This in combination with
+                      :attr:`view_args` can be used to reconstruct the same or a
+                      modified URL.  If an exception happened when matching, this will
+                      be ``None``.
+                      """
+                      if self.url_rule is not None:
+                          return self.url_rule.endpoint
+
+                  @property
+                  def blueprint(self):
+                      """The name of the current blueprint"""
+                      if self.url_rule and "." in self.url_rule.endpoint:
+                          return self.url_rule.endpoint.rsplit(".", 1)[0]
+
+                  ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties :: When to Use
+
+              - validation/filtering of the set attributes (forcing them to be in bounds or acceptable)
+              - lazy evaluation of complex or rapidly changing terms
+              - additional actions required during getting, setting or deleting instance attributes
+              - don't use without a need, Python is not Java
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Properties And Inheritance -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties And Inheritance :: Getters
+
+              `@property` methods are inherited without any issue
+
+              Overwriting `@property` getters is straightforward. We redefine the property in the derrived class delegating to the base class if needed
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties And Inheritance :: Setters
+
+              Overwriting setters is much more envolved
+
+              Setter property can be out of scope of child class, in this case it can be solved by specifying fully qualified name: `@baseclass.prop.setter`
+
+              ```
+              class SomeClass(BaseClass):
+                  ...
+                  super().some_property = value  # <== may give runtime error
+                                                 # if you get such error, consider using the following:
+                  BaseClass.some_property.fset(self, value)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Properties And Inheritance
+
+              Example:
+
+              ```
+              from properties import Thermometer
+
+              class FancyThermometer(Thermometer):
+
+                  def __init__(self, temp, color='black', _max=None):
+                      super().__init__(temp, _max=_max)
+                      self.color = color
+
+              ft = FancyThermometer(25, _max=30)
+              print(f'Temperature: {ft.temp}')  # Temperature: 25
+              try:
+                  ft.temp = 50
+              except ValueError as ex:
+                  print(f'Exception: {ex}')  # Exception: Temperature is too large
+              ft.temp = -10
+              print(f'Temperature: {ft.temp}') # Temperature: -10
+              print(f'Temperature was accessed {ft._access_count} times')
+              # Temperature was accessed 2 times
+              print(f'Therm color is {ft.color}')
+              # Therm color is black
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              - don't overuse `@staticmethod`, `@classmethod`, `@property`, use where those fit nicely
+              - don't use `@property` getter, setter for all public attributes, use only when needed, in practice there are not many cases when those are needed
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [Python's Instance, Class, and Static Methods Demystified](https://realpython.com/instance-class-and-static-methods-demystified/)
+              - [The definitive guide on how to use static, class or abstract methods in Python](https://julien.danjou.info/guide-python-static-class-abstract-methods/)
+              - [How does @property decorator work](https://stackoverflow.com/a/17330273)
+            </textarea>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
