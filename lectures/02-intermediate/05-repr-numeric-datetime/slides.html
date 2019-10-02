@@ -1,0 +1,784 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: -10px;
+        left: -10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Representations, Numeric Types, Datetime
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Representations, Numeric Types, Datetime
+
+            - Strings and Representations
+            - Numeric and Scalar Types
+            - Datetime and Date Type
+            - Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Strings and Representations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations
+
+              Python supports 2 types of making string representations of objects: `str()` and `repr()`
+
+              Each can take any objects as an argument and produces string representation in some form
+
+              These functions rely on `__str()__` and `__repr()__` to generate the strings they produce
+
+              By defining those you can control string representations of your classes
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations
+
+              Example:
+
+              ```
+              In [5]: class Point2D:
+              ...:     def __init__(self, x, y):
+              ...:         self.x = x
+              ...:         self.y = y
+              ...:     def __str__(self):
+              ...:         return f'({self.x}, {self.y})'
+              ...:     def __repr__(self):
+              ...:         return f'Point2D(x={self.x}, y={self.y})'
+              In [6]: p = Point2D(100, 200)
+              In [7]: p
+              Out[7]: Point2D(x=100, y=200)
+              In [8]: repr(p)
+              Out[8]: 'Point2D(x=100, y=200)'
+              In [9]: str(p)
+              Out[9]: '(100, 200)'
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: `repr()`
+
+              `repr()` is intended to be unambiguous representation of an object
+
+              It should include the type of the object along with all fields
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: `repr()`
+
+              Where `repr()` is appropriate:
+
+              - exactness is more important than human-friendliness
+              - suited for debugging
+              - includes identifying information
+              - generally best for logging
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: `repr()`
+
+              In general `repr()` should contain **more information** than result of `str()`
+
+              As a rule you should always write a `repr()` for your classes
+              
+              Default `repr()` is not very helpful
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: `str()`
+
+              `str()` is intended to provide human friendly output
+
+              It may be used where integration with text needed, or type is not needed
+
+              **Note**: When `print()` is used, `str()` is used
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations
+
+              **When are representations used**
+
+              By default `str()` simply calls `repr()`
+
+              `repr()` does not call `str()`
+
+              `repr()` is used when showing elements of a collection
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: String Formatting
+
+              The `format()` and `f-strings` are another place for string representation are called behind the scenes
+
+              When the `format()` or `f-strings` replaces `{}` with the object representation, it calls speciall `__format__()` on that object
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: String Formatting
+
+              Example (`__format__()`):
+
+              ```
+              In [1]: class Point:
+              ...:     def __init__(self, x, y):
+              ...:         self.x = x
+              ...:         self.y = y
+              ...:     def __format__(self, f):
+              ...:         return f'[Formatted point: {self.x}, {self.y}]'
+              In [2]: p = Point(10, 20)
+              In [3]: f'This is my point: {p}'
+              Out[3]: 'This is my point: [Formatted point: 10, 20]'
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: String Formatting
+
+              `def __format__(self, f)`
+
+              Note, `f` contains any special formatting options specified in the original string
+
+              By default `__format__()` just calls `__str__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: String Formatting
+
+              Example (formatting options):
+
+              ```
+              In [1]: a = 'some of my string'
+
+              In [2]: b = 20.1234567
+
+              In [3]: c = 123456789
+
+              In [4]: f'This is some formatting example: {a:*^25} and {b:.2f} and {c:,}'
+              Out[4]: 'This is some formatting example: ****some of my string**** and 20.12 and 123,456,789'
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: **reprlib**
+
+              **reprlib** provides an alternative implementation of the built-in `repr()` function
+
+              - limits excessinve string length
+              - useful for large collections
+
+              Basic usage of **reprlib** involves using `reprlib.repr()` which is a drop-in replacement for `repr()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: **reprlib**
+
+              Example:
+
+              ```
+              In [1]: class Point: 
+              ...:     def __init__(self, x, y): 
+              ...:         self.x = x 
+              ...:         self.y = y 
+              ...:     def __repr__(self): 
+              ...:         return f'[Point(x={self.x}, y={self.y}) and some veeeeeeery long text]' 
+              In [2]: import reprlib
+              In [3]: p = Point(100, 200)
+              In [4]: reprlib.repr(p)
+              Out[4]: '[Point(x=100,...ery long text]'
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: **reprlib**
+
+              **Notes**
+
+              **reprlib** functionality is built around the class `Repr`
+
+              It implements the main functionality of reprlib
+
+              Supports customization through subclassing
+
+              `reprlib.aRepr` - an instance used by Python and debugger
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: `ascii()`, `ord()`, `chr()`
+
+              These can be useful for string representations
+
+              `ascii()` - replaces non-ASCII characters with escape sequences
+
+              `ord()` - converts a single character to its integer Unicode codepoint
+
+              `chr()` - converts an integer Unicode codepoint to a single character string
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Strings and Representations :: `ascii()`, `ord()`, `chr()`
+
+              Examples:
+
+              ```
+              In [1]: ascii('This is Russian word: Пример')
+              Out[1]: "'This is Russian word: \\u041f\\u0440\\u0438\\u043c\\u0435\\u0440'"
+              In [2]: ord('F')
+              Out[2]: 70
+              In [3]: chr(71)
+              Out[3]: 'G'
+              In [4]: def generate_symbols(number, start='A', stop='z'):
+              ...:     curr = number
+              ...:     while curr:
+              ...:         yield chr(rnd(ord(start), ord(stop)))
+              ...:         curr -= 1
+              ...:     return
+
+              In [5]: ''.join(generate_symbols(10))
+              Out[5]: 'xCHLIhoglu'
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Numeric and Scalar Types -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `int`
+
+              `int` - unlimited precision signed integer
+
+              `int` object can represent integers that is whole numbers of arbitrary magnitude, limited only by available memory
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `float`
+
+              `float` - double precision (64-bit: 53 bits of binary precision and 15 to 17 bits of decimal precision)
+
+              <<add picture of float representation>>
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `float`
+
+              It's possible to convert any decimals with 15 significant figures into Python floats and back again without lost of information
+
+              `sys.float_info` - reveals float limits
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `decimal`
+
+              Python standard library contains `decimal` module which contains `Decimal` class that is a fast, 
+              correctly rounded number type for performing arithmetics in base 10
+
+              - decimal floating point
+              - configurable (but finite) precision
+              - defaults to 28 digits of decimal precision
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `decimal`
+
+              `decimal.getcontext()` - reveals info about how the decimal system is configured
+
+              **NOTE**: You should always specify fractional decimal literals as strings to avoid creation of inexact intermediate base 2 float object
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `decimal`
+
+              Examples:
+
+              ```
+              In [1]: 0.7 - 0.6
+              Out[1]: 0.09999999999999998
+
+              In [2]: from decimal import Decimal
+
+              In [3]: Decimal('0.7') - Decimal('0.6')
+              Out[3]: Decimal('0.1')
+
+              In [4]: a = Decimal('Infinity')
+              In [5]: a
+              Out[5]: Decimal('Infinity')
+              
+              In [6]: b = Decimal('-Infinity')
+              In [7]: b
+              Out[7]: Decimal('-Infinity')
+
+              In [8]: Decimal('NaN')
+              Out[8]: Decimal('NaN')
+
+              In [9]: a * 100
+              Out[9]: Decimal('Infinity')
+
+              In [10]: a * b
+              Out[10]: Decimal('-Infinity')
+              
+              In [11]: a + b
+              ---------------------------------------------------------------------------
+              InvalidOperation                          Traceback (most recent call last)
+              <ipython-input-11-bd58363a63fc> in <module>
+              ----> 1 a + b
+              InvalidOperation: [<class 'decimal.InvalidOperation'>]
+
+              In [12]: b * b
+              Out[12]: Decimal('Infinity')
+
+              In [14]: import decimal
+
+              In [15]: decimal.getcontext()
+              Out[15]: Context(prec=28, rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999, capitals=1, clamp=0, flags=[InvalidOperation], traps=[InvalidOperation, DivisionByZero, Overflow])
+
+              In [16]: # you can set a trap to avoid creation from floats
+              In [17]: decimal.getcontext().traps[decimal.FloatOperation] = True
+              In [18]: decimal.getcontext()
+              Out[18]: Context(prec=28, rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999, capitals=1, clamp=0, flags=[InvalidOperation], traps=[InvalidOperation, DivisionByZero, FloatOperation, Overflow])
+
+              In [19]: Decimal(10.5)
+              ---------------------------------------------------------------------------
+              FloatOperation                            Traceback (most recent call last)
+              <ipython-input-19-3148f5699b19> in <module>
+              ----> 1 Decimal(10.5)
+              FloatOperation: [<class 'decimal.FloatOperation'>]
+
+              In [20]: Decimal('10.5')
+              Out[20]: Decimal('10.5')
+
+              In [22]: Decimal('10.5') // Decimal('4')
+              Out[22]: Decimal('2')
+
+              In [23]: Decimal('10.5') / Decimal('4')
+              Out[23]: Decimal('2.625')
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `fractions`
+
+              The module contains the `Fraction` type that represents rational numbers, which consist of 2 integers
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `fractions`
+
+              Example:
+
+              ```
+              In [1]: from fractions import Fraction
+
+              In [2]: two_thirds = Fraction(2, 3)
+              In [3]: two_thirds
+              Out[3]: Fraction(2, 3)
+
+              In [4]: Fraction('22/5')
+              Out[4]: Fraction(22, 5)
+
+              In [5]: from decimal import Decimal
+
+              In [6]: Fraction(Decimal('0.1'))
+              Out[6]: Fraction(1, 10)
+
+              In [7]: Fraction(2, 3) + Fraction(4, 5)
+              Out[7]: Fraction(22, 15)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: Complex Type
+
+              Python supports complex numbers
+
+              Complex numbers are built-in type
+
+              Since complex type consists of real and imagenary parts (imagenary is represented with `j`)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: Complex Type
+
+              Example:
+
+              ```
+              In [1]: 3 + 4j
+              Out[1]: (3+4j)
+
+              In [2]: a = complex(-2, 3)
+              In [3]: a
+              Out[3]: (-2+3j)
+
+              In [4]: type(a)
+              Out[4]: complex
+
+              In [6]: complex('-2+3j')
+              Out[6]: (-2+3j)
+
+              In [7]: a.real
+              Out[7]: -2.0
+
+              In [8]: a.imag
+              Out[8]: 3.0
+
+              In [9]: a.conjugate()
+              Out[9]: (-2-3j)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: Complex Type
+
+              **Notes**:
+
+              - complex constructions: string arg may have parentheses, but **must not** contain spaces
+              - `math` module can't be used for complex type operations, consider using `cmath` module
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `abs()`
+
+              The built-in functions `abs()` gives the distance from zero
+
+              Example:
+
+              ```
+              In [4]: abs(-10)
+              Out[4]: 10
+
+              In [5]: abs(Decimal('-10.45'))
+              Out[5]: Decimal('10.45')
+
+              In [6]: abs(Fraction(-5, 3))
+              Out[6]: Fraction(5, 3)
+
+              In [7]: abs(complex(0, -5))
+              Out[7]: 5.0
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `round()`
+
+              The built-in function `round()` performs decimal rounding for all scalar number types
+
+              When `round()` is used with floats which use binary representation can give surprising results
+
+              It is safe to use `Decimal` type
+
+              `round()` is not supported for complex
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: `round()`
+
+              Example:
+
+              ```
+              In [1]: round(0.2812, 3)
+              Out[1]: 0.281
+
+              In [2]: round(0.625, 1)
+              Out[2]: 0.6
+
+              In [3]: round(0.12686, 3)
+              Out[3]: 0.127
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: Number Conversions
+
+              Number base conversions:
+
+              - `bin()` - base 2
+              - `oct()` - base 8
+              - `hex()` - base 16
+              - `int(x, base)` - bases 2 to 36
+
+              `int(x, base)` uses `0-9` and `a-z` for digits in bases from 2 to 36, 
+              specifying base `0` uses the base prefix defaulting to decimal, no support for base `1`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Numeric and Scalar Types :: Number Conversions
+
+              Example:
+
+              ```
+              In [1]: 0b101010
+              Out[1]: 42
+
+              In [2]: 0o52
+              Out[2]: 42
+
+              In [3]: 0x2a
+              Out[3]: 42
+
+              In [4]: bin(42)
+              Out[4]: '0b101010'
+
+              In [5]: oct(42)
+              Out[5]: '0o52'
+
+              In [6]: hex(42)
+              Out[6]: '0x2a'
+
+              In [7]: int('2a', base=16)
+              Out[7]: 42
+
+              In [10]: int('90', base=32)
+              Out[10]: 288
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Datetime and Date Type -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Datetime and Date Type
+
+              Python standard library provides the following **Datetime** related packages/modules:
+
+              - `datetime`
+              - `date`
+              - `time`
+              - `timezone`
+              - `timedelta`
+
+              **NOTE**: all objects of `datetime` are **immutable**
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Datetime and Date Type
+
+              **NOTE**
+
+              Don't use this: `from datetime import datetime`
+
+              Instead use: `from datetime import datetime as Datetime`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Datetime and Date Type
+
+              Example:
+
+              ```
+              In [1]: from datetime import datetime as Datetime
+              In [2]: import time
+
+              In [3]: dt = Datetime(2019, 10, 3, 13, 53)
+              In [4]: dt
+              Out[4]: datetime.datetime(2019, 10, 3, 13, 53)
+              In [5]: dt.time()
+              Out[5]: datetime.time(13, 53)
+
+              In [6]: dt.strftime('%A %d %B %Y %H:%M')
+              Out[6]: 'Thursday 03 October 2019 13:53'
+
+              In [7]: time.mktime(dt.timetuple())
+              Out[7]: 1570099980.0
+
+              In [8]: dt2 = Datetime.strptime('Thursday 03 October 2019 13:53', '%A %d %B %Y %H:%M')
+              In [9]: dt2
+              Out[9]: datetime.datetime(2019, 10, 3, 13, 53)
+
+              In [10]: Datetime.now()
+              Out[10]: datetime.datetime(2018, 4, 1, 20, 24, 37, 19069)
+
+              In [11]: import datetime
+              In [12]: datetime.date.today()
+              Out[12]: datetime.date(2010, 5, 5)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Datetime and Date Type :: `timedelta`
+
+              **NOTE**
+
+              `timedelta` doesn't support operations with `time` object
+
+              `timedelta` instances store only:
+
+              - days
+              - seconds
+              - microseconds
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Datetime and Date Type :: `timedelta`
+
+              Example:
+
+              ```
+              In [1]: import datetime
+              In [2]: from datetime import datetime as Datetime
+
+              In [3]: a = Datetime(year=2019, month=9, day=8, hour=14, minute=22)
+              In [4]: b = Datetime(year=2018, month=3, day=26, hour=4, minute=49)
+              In [5]: a - b
+              Out[5]: datetime.timedelta(days=531, seconds=34380)
+
+              In [6]: datetime.date.today()
+              Out[6]: datetime.date(2019, 10, 2)
+
+              In [7]: datetime.date.today() + datetime.timedelta(weeks=1) * 3
+              Out[7]: datetime.date(2019, 10, 23)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Datetime and Date Type :: `timezone`
+
+              To create timezone aware object we must attach instances of the `tzinfo` object toa time values
+
+              Python built-in libraries don't provide exhaustive timezone database
+
+              If you need update timezone data use 3rd party libs like:
+
+              - pytz
+              - python-dateutil
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Datetime and Date Type :: `timezone`
+
+              Example:
+
+              ```
+              In [31]: cet = datetime.timezone(datetime.timedelta(hours=1), 'CET')
+
+              In [33]: departure = datetime.datetime(year=2019, month=1, day=7, hour=11, minute=30, tzinfo=cet)
+
+              In [34]: arrival = datetime.datetime(year=2019, month=1, day=7, hour=13, minute=5, tzinfo=datetime.timezone.utc)
+
+              In [36]: str(arrival - departure)
+              Out[36]: '2:35:00'
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              Nothing for now :)
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [Python String Conversion 101: Why Every Class Needs a 'repr'](https://dbader.org/blog/python-repr-vs-str)
+              - [Datetime format codes](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior)
+              - [How to work with dates and time with Python](https://opensource.com/article/17/5/understanding-datetime-python-primer)
+              - [A Beginner’s Guide to the Python time Module](https://realpython.com/python-time-module/)
+            </textarea>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
