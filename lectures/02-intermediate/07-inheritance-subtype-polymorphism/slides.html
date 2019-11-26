@@ -1,0 +1,899 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: 0px;
+        left: -10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Inheritance and Subtype Polymorphism
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Inheritance and Subtype Polymorphism
+
+            - Inheritance
+            - `isinstance()` and `issubclass()`
+            - Multiple Inheritance
+            - Method Resolution Order (MRO)
+            - `super()` and Super Proxies
+            - Object Class
+            - Mixin Design Pattern
+            - Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Inheritance -->
+        <section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Inheritance Overview :: Single Inheritance
+
+              Syntax: `class SubClass(BaseClass): ...`
+
+              `SubClass` will have all of the methods of the `BaseClass`, and `SubClass` can overwrite these methods if needed
+
+              - `SubClass` will want to initialize `BaseClass`
+              - `BaseClass` initializer will only be called automatically if `SubClass` initializer is undefined
+            </textarea>
+          </section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Inheritance Overview :: Single Inheritance
+
+              Example:
+
+              ```
+              >>> class BaseClass:
+              ...   def __init__(self):
+              ...     print('inside base class')
+              ...
+              >>> class Foo(BaseClass):
+              ...   def __init__(self):
+              ...     print('inside foo class')
+              ...
+              >>> class Bar(BaseClass):
+              ...   def do_something(self):
+              ...     print('do something from bar class')
+              ...
+              >>> f = Foo()
+              inside foo class
+              >>> b = Bar()
+              inside base class
+              ```
+            </textarea>
+          </section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Inheritance Overview :: Single Inheritance
+
+              **Calling Base Class Initializer**
+
+              - Other languages automatically call base class "initializers"
+              - Python treats `__init__()` like any other method
+              - Base class `__init__()` is not called if overriden
+              - Use `super()` to call base class `__init__()`
+            </textarea>
+          </section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Inheritance Overview :: Single Inheritance
+
+              **NOTE**: `super()` used to access base-class implementation
+
+              ```
+              >>> class Base:
+              ...   def __init__(self):
+              ...     print('Base init')
+              ...   def foo(self):
+              ...     print('Base.foo()')
+              ...
+              >>> class Sub(Base):
+              ...   def __init__(self):
+              ...     super().__init__()
+              ...     print('Sub init')
+              ...   def foo(self):
+              ...     print('Sub.foo()')
+              ...   def bar(self):
+              ...     super().foo()
+              ...
+              >>> base = Base()
+              Base init
+              >>> base.foo()
+              Base.foo()
+              >>> sub = Sub()
+              Base init
+              Sub init
+              >>> sub.foo()
+              Sub.foo()
+              >>> sub.bar()
+              Base.foo()
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: `isinstance()` and `issubclass()` -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### `isinstance()` Built-In Function
+
+              `isinstance(object, classinfo)` determines if an object is of specific type
+
+              `isinstance()` is used for runtime type checking
+
+              `isinstance()` takes an object as the first argument and the type as the second argument.
+              It then determines if the object is of the specified type, returning `True` or `False`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### `isinstance()` Built-In Function
+
+              Examples:
+
+              ```
+              >>> isinstance(3, int)
+              True
+              >>> isinstance(4.56, bytes)
+              False
+              >>> x = []
+              >>> y = {}
+              >>> isinstance(x, (str, dict, list))
+              True
+              >>> isinstance(y, (str, dict, list))
+              True
+              >>> isinstance(x, (set, tuple))
+              False
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### `isinstance()` Built-In Function
+
+              `isinstance()` is preferrable way to test object type because it can test derived types, in opposit to `type(object) is some_type`
+
+              ```
+              >>> class Base:
+              ...     pass
+              ...
+              >>> class Foo(Base):
+              ...     pass
+              ...
+              >>> class Bar(Foo):
+              ...     pass
+              ...
+              >>> class Baz:
+              ...     pass
+              ...
+              >>> bar = Bar()
+              >>> baz = Baz()
+              >>> isinstance(bar, Base)
+              True
+              >>> isinstance(bar, Foo)
+              True
+              >>> isinstance(baz, Base)
+              False
+
+              # NOTE :: is can't test if object is derived type
+              >>> type(bar) is Foo
+              False
+              >>> type(bar) is Base
+              False
+              >>> type(bar) is Bar
+              True
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### `issubclass()` Built-In Function
+
+              `issubclass(class, classinfo)` determines if one type is a subclass of another
+
+              It operates on types only rather than operating on instances of types
+
+              `issubclass()` takes 2 arguments: both of them should be typed object and it returns `True` if the first argument is a direct or indirect subclass of the second
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### `issubclass()` Built-In Function
+
+              Example:
+
+              ```
+              >>> class Base:
+              ...     pass
+              ...
+              >>> class Sub(Base):
+              ...     pass
+              ...
+              >>> issubclass(Sub, Base)
+              True
+              >>> issubclass(Sub, int)
+              False
+              >>> issubclass(Base, list)
+              False
+              >>> issubclass(Base, object)
+              True
+              >>> issubclass(Base, Sub)
+              False
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Multiple Inheritance -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Inheritance Overview :: Multiple Inheritance
+
+              Multiple Inheritance is defining a class with more than one base class
+
+              Multiple Inheritance can lead to certain complex situations
+
+              For example, deciding what to do when more than one base class defines a particular method
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Inheritance Overview :: Multiple Inheritance
+
+              Python has a simple and understandable system for multiple Inheritance
+
+              `class SubClass(Base1, Base2, ...)`
+
+              - Subclasses inherent methods of all bases
+              - Without a conflict, names resolve in the obvious way
+              - Method Resolution Order (MRO) determines name lookup in all cases
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Inheritance Overview :: Multiple Inheritance
+
+              If a class
+
+              1. has multiple base classes
+              2. defines no initializer
+
+              then <u>only</u> the initializer of the <u>first</u> base class is automatically called
+
+              NOTE: `class.__bases__` reveals information about direct classes the given class is derived from
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Inheritance Overview :: Multiple Inheritance
+
+              Examples:
+
+              ```
+              >>> class Base1:
+              ...     def __init__(self):
+              ...         print('Base 1 init')
+              ...     def foo(self):
+              ...         print('foo')
+              ...
+              >>> class Base2:
+              ...     def __init__(self):
+              ...         print('Base 2 init')
+              ...     def bar(self):
+              ...         print('bar')
+              ...
+              >>> class Sub(Base1, Base2):
+              ...     def baz(self):
+              ...         print('baz')
+              ...
+              >>> sub = Sub()
+              Base 1 init
+              >>> sub.bar()
+              bar
+              >>> sub.foo()
+              foo
+              >>> Sub.__bases__
+              (<class '__main__.Base1'>, <class '__main__.Base2'>)
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Method Resolution Order (MRO) -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Method Resolution Order
+
+              MRO is ordering that determines method name lookup
+
+              - Methods may be defined in multiple places
+              - MRO is an ordering of the inheritance graph
+
+              ```
+              >>> class Foo:
+              ...     pass
+              ...
+              >>> Foo.__mro__
+              (<class '__main__.Foo'>, <class 'object'>)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Method Resolution Order :: How It Works
+
+              Classes Hierarchy Example
+
+              ![Classes Hierarchy Example](images/classes_hierarchy.jpg)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Method Resolution Order :: How It Works
+
+              Example:
+
+              ```
+              >>> class A:
+              ...     def foo(self):
+              ...         print(f'{self.__class__.__name__}:foo()')
+              ...
+              >>> class B(A):
+              ...     pass
+              ...
+              >>> class C:
+              ...     def foo(self):
+              ...         print('ololo')
+              ...
+              >>> class D(B):
+              ...     pass
+              ...
+              >>> class E(C):
+              ...     pass
+              ...
+              >>> class F(D, E):
+              ...     pass
+              ...
+              >>> F.__mro__
+              (<class '__main__.F'>, <class '__main__.D'>, <class '__main__.B'>, <class '__main__.A'>, <class '__main__.E'>, <class '__main__.C'>, <class 'object'>)
+              >>> f = F()
+              >>> f.foo()
+              F:foo()
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Method Resolution Order :: How It Works
+
+              When you call a method on an object in Python, Python looks at the MRO for that object type
+
+              For each entry in the MRO, starting at the front and working in order to the back, Python checks if that class has the requested method
+
+              As soon as Python finds the class with the matching method, it uses that method and the search stops
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Method Resolution Order :: How It Works
+
+              Python uses an algorithm known as C3 for determining MRO
+
+              - Subclass come before base classes
+              - Base class order from class definition is preserved
+              - First two points are preserved no matter where you start in the inheritance graph
+
+              [C3 Algorithm Linearization (Wiki)](https://en.wikipedia.org/wiki/C3_linearization)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Method Resolution Order
+
+              Not all inheritance declarations are allowed in Python, some base class declarations will violate C3 and Python will refuse to compile them
+
+              ```
+              >>> class A:
+              ...     pass
+              ...
+              >>> class B(A):
+              ...     pass
+              ...
+              >>> class C(A):
+              ...     pass
+              ...
+              >>> class D(B, A, C):
+              ...     pass
+              ...
+              Traceback (most recent call last):
+                File "<stdin>", line 1, in <module>
+              TypeError: Cannot create a consistent method resolution
+              order (MRO) for bases A, C
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: `super()` and Super Proxies -->
+        <section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                `super()` is a built-in function
+
+                Suppose we have an MRO and a class `C`
+
+                `super()` gives you an object which resolves methods using only the part of the MRO which comes after `C`
+
+                `super()` doesn't work with the base classes of the class, but instead it works with the MRO of the type of the object on which the method was originally invoked
+
+                `super()` returns a proxy object which routes method calls
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                `super()` can be called in several ways but all of them return so called **super proxy object**
+
+                You can call any method on a `super()` proxy and it will route the call to the correct method implementation for you if such a method exists
+
+                There are 2 high level types of super proxies:
+
+                - **Bound Proxy** - bound to a specific class or instance
+                - **Unbound Proxy** - not bound to a class or instance
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                **Class-Bound Super Proxies**
+
+                There are 2 types of **bound proxies**: instance-bound and class-bound
+
+                To create a class bound proxy use the following form:
+
+                `super(base-class, derived-class)`
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                **Class-Bound Super Proxies**
+
+                When you invoke the method on the proxy here is what happens:
+
+                - Python finds MRO for derived-class
+                - It then finds base-class in that MRO
+                - It takes everything after base-class in the MRO, and finds the first class in that sequence with a matching method name
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                **Class-Bound Super Proxies**
+
+                ```
+                >>> class A:
+                ...     @staticmethod
+                ...     def foo():
+                ...         print('foo() from A')
+                ...
+                >>> class B(A):
+                ...     pass
+                ...
+                >>> class C:
+                ...     @staticmethod
+                ...     def foo():
+                ...         print('foo() from C')
+                ...
+                >>> class D(B):
+                ...     pass
+                ...
+                >>> class E(C):
+                ...     pass
+                ...
+                >>> class F(D, E):
+                ...     pass
+                ...
+                >>> super(D, F).foo()
+                foo() from A
+                >>> super(E, F).foo()
+                foo() from C
+                >>> super(A, F).foo()
+                foo() from C
+                >>> super(B, F).foo()
+                foo() from A
+                >>> F.__mro__
+                (<class '__main__.F'>, <class '__main__.D'>, <class '__main__.B'>, <class '__main__.A'>, <class '__main__.E'>, <class '__main__.C'>, <class 'object'>)
+                ```
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                **Instance-Bound Super Proxies**
+
+                It works much like class-bound super proxies, but it binds to the instance
+
+                To create an instance-bound proxy, call `super()` like:
+
+                `super(class, instance-of-class)`
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                **Instance-Bound Super Proxies**
+
+                ```
+                >>> class A:
+                ...     def foo(self):
+                ...         print('foo() from A')
+                ...
+                >>> class B(A):
+                ...     pass
+                ...
+                >>> class C:
+                ...     def foo(self):
+                ...         print('foo() from C')
+                ...
+                >>> class D(B):
+                ...     pass
+                ...
+                >>> class E(C):
+                ...     pass
+                ...
+                >>> class F(D, E):
+                ...     pass
+                ...
+                >>> f = F()
+                >>> super(D, f).foo()
+                foo() from A
+                >>> super(E, f).foo()
+                foo() from C
+                >>> super(A, f).foo()
+                foo() from C
+                >>> super(B, f).foo()
+                foo() from A
+                ```
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                It's possible to call `super()` in a method with no arguments, and Python will sort arguments for you
+
+                If you're on an instance method, that is a method which takes an instance as its first argument, and you call `super()` without arguments, that is the same as calling `super()` as:
+
+                `super(class-of-method, self)`
+
+                **NOTE**: In single inheritance this is the same as calling method of base class
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                Examples (instance-bound no arguments `super()` example):
+
+                ```
+                >>> class A:
+                ...     def foo(self):
+                ...         print('foo() from A')
+                ...
+                >>> class B(A):
+                ...     pass
+                ...
+                >>> class C:
+                ...     def foo(self):
+                ...         print('foo() from C')
+                ...
+                >>> class D(B):
+                ...     pass
+                ...
+                >>> class E(C):
+                ...     pass
+                ...
+                >>> class F(D, E):
+                ...     pass
+                ...
+                >>> class G(F):
+                ...     def baz(self):
+                ...         super().foo()
+                ...     def baz_explicit(self):
+                ...         super(A, self).foo()
+                ...
+                >>> g = G()
+                >>> g.baz()
+                foo() from A
+                >>> g.baz_explicit()
+                foo() from C
+                ```
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                If you call `super()` without arguments in a class method, Python sets the arguments for you so that's equivalent to:
+
+                `super(class-of-method, class)`
+
+                **NOTE**: This is the same as calling the base classes method
+              </textarea>
+            </section>
+            <section data-markdown>
+              <textarea data-template>
+                ### Super Proxies and `super()`
+
+                Examples (class-bound no arguments `super()` example):
+
+                ```
+                >>> class A:
+                ...     @staticmethod
+                ...     def foo():
+                ...         print('foo() from A')
+                ...
+                >>> class B(A):
+                ...     pass
+                ...
+                >>> class C:
+                ...     @staticmethod
+                ...     def foo():
+                ...         print('foo() from C')
+                ...
+                >>> class D(B):
+                ...     pass
+                ...
+                >>> class E(C):
+                ...     pass
+                ...
+                >>> class F(D, E):
+                ...     pass
+                ...
+                >>> class G(F):
+                ...     @classmethod
+                ...     def bar(cls):
+                ...         super().foo()
+                ...     @classmethod
+                ...     def bar_explicit(cls):
+                ...         super(A, G).foo()
+                ...
+                >>> G.bar()
+                foo() from A
+                >>> G.bar_explicit()
+                foo() from C
+                ```
+              </textarea>
+            </section>
+          </section>
+
+        <!-- Slide Group: Object Class -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Object Class
+
+              `object` is the core of the Python object model
+
+              `object` is the ultimate base class of every class in Python
+
+              At the root of every inheritance graph you will find `object`
+
+              `object` is automatically added as a base class, even if no base class is defined
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Object Class
+
+              `object` class provides default implementation of different actions like: comparison, printing, attribute management, etc.
+
+              ```
+              >>> a = object
+              >>> a
+              <class 'object'>
+              >>> type(a)
+              <class 'type'>
+              >>> dir(a)
+              ['__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__']
+              >>> class Foo:
+              ...     pass
+              ...
+              >>> Foo.__mro__
+              (<class '__main__.Foo'>, <class 'object'>)
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Mixin Design Pattern -->
+        <section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Mixin Design Pattern
+
+              - Python uses duck typing - that means that type fitness is checked when the object is being used. Exception occurs if wrong type or no method found for particular object type.
+              - No function argument types
+              - No type management in function agruments
+
+              In Python, inheritance is a way to share implementation, in other words inheritance in Python is a convenient way to reuse code much more than build type hierarchy
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Mixin Design Pattern
+
+              A mixin is a class that defines and implements a single, well-defined feature
+              
+              Subclasses that inherit from the mixin inherit this feature and nothing else
+
+              Mixins are an alternative class design pattern that avoids both single-inheritance class fragmentation and multiple-inheritance diamond dependencies
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Mixin Design Pattern
+
+              Mixins rely on Python multiple-inheritance mechanism
+
+              ```
+              >>> class Barkable:
+              ...     def bark(self):
+              ...         print('Gav gav')
+              ...
+              >>> class Runnable:
+              ...     def run(self):
+              ...         print('I am running')
+              ...
+              >>> class Waggable:
+              ...     def wag(self):
+              ...         print('I am wagging my tail')
+              ...
+              >>> class Dog(Barkable, Runnable, Waggable):
+              ...     def __init__(self, name):
+              ...         self.name = name
+              ...
+              >>> tuzik = Dog('Tuzik')
+              >>> tuzik.name
+              'Tuzik'
+              >>> tuzik.bark()
+              Gav gav
+              >>> tuzik.run()
+              I am running
+              >>> tuzik.wag()
+              I am wagging my tail
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Mixin Design Pattern
+
+              Pro Example (from **sqlalchemy** ORM)
+
+              [Link to Source](https://github.com/sqlalchemy/sqlalchemy/blob/6f270fb0e344016ce526e0a1ecb3e3de9ffd1e3b/lib/sqlalchemy/dialects/mysql/json.py#L31)
+
+              ```
+              class _FormatTypeMixin(object):
+
+                  def _format_value(self, value):
+                      raise NotImplementedError()
+              
+                  def bind_processor(self, dialect):
+                      super_proc = self.string_bind_processor(dialect)
+                      ...
+
+              ...
+          
+              class JSONIndexType(_FormatTypeMixin, sqltypes.JSON.JSONIndexType):
+
+                    def _format_value(self, value):
+                    ...
+              
+    
+              class JSONPathType(_FormatTypeMixin, sqltypes.JSON.JSONPathType):
+
+                    def _format_value(self, value):
+                    ...
+
+              ...
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              - Prefer using `isinstance()` instead of `type(obj) is some_type`
+              - Don't overuse multiple-inheritance where it is not needed
+              - Use Mixin Design Pattern with care (there are alternatives to this pattern)
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [Inheritance and Composition: A Python OOP Guide](https://realpython.com/inheritance-composition-python/)
+              - [Intro to Multiple Inheritance & super()](https://www.datacamp.com/community/tutorials/super-multiple-inheritance-diamond-problem)
+              - [Python Method Resolution Order](https://medium.com/technology-nineleaps/python-method-resolution-order-4fd41d2fcc)
+              - [Supercharge Your Classes With Python super()](https://realpython.com/python-super/)
+              - [Making Python classes more modular using mixins](https://www.residentmar.io/2019/07/07/python-mixins.html)
+            </textarea>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
