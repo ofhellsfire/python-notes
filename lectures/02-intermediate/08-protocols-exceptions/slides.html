@@ -1,0 +1,1013 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: 0px;
+        left: -10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Protocols And Exceptions
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Protocols And Exceptions
+
+            - Protocols
+            - Exceptions And Errors
+            - Assertions
+            - Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Protocols -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Collection Protocol
+
+              It's possible to define own collection type
+
+              It requires implementing series of different protocols
+
+              Each of which represents different capability of collections
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Collection Protocol
+
+              - To implement a protocol, objects must support certain operations
+              - Most collections implement container, sized, iterable
+              - All except `dict` and `set` are considered as sequences
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Collection Protocol
+
+              | Protocol | Implementing Collections | Description |
+              | ---------| ------------------------ | ----------- |
+              | Container | `str`, `list`, `range`, `tuple`, `set`, `bytes`, `dict` | Membership testing using `in` and `not in` |
+              | Sized | `str`, `list`, `range`, `tuple`, `set`, `bytes`, `dict` | Determine number of elements with `len()` |
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Collection Protocol
+
+              | Protocol | Implementing Collections | Description |
+              | ---------| ------------------------ | ----------- |
+              | Iterable | `str`, `list`, `range`, `tuple`, `set`, `bytes`, `dict` | Can produce iterator with `iter()` |
+              | Sequence | `str`, `list`, `range`, `tuple`, `bytes` | Retrieve elements by index. Find items by value. Count items. Produce a reverse sequence.
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Collection Protocol
+
+              | Protocol | Implementing Collections | Description |
+              | ---------| ------------------------ | ----------- |
+              | Set | `set` | Set algebra operations: subset, proper subset, not equal, proper superset, superset, intersections, union, symmetric difference, difference
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Collection Protocol
+
+              | Protocol | Implementing Collections | Description |
+              | ---------| ------------------------ | ----------- |
+              | Mutable List | `list` |  |
+              | Mutable Set | `set` |  |
+              | Mutable Mapping | `dict` |  |
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Collection Protocol
+
+              Example:
+
+              ```
+              See stack_collection.py from example
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Container Protocol
+
+              It allows determing whether a particular item is present in the collection
+
+              Client code exersies objects supporting the container protocol by using `in` and `not in` operators
+
+              Features:
+
+              - Membership testing using `in` and `not in`
+              - Special method: `__contains__(item)`
+              - Fallback to iterable protocol
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Container Protocol
+
+              Example:
+
+              ```
+              class SortedSet:
+              
+                  def __init__(self, ...):
+                      ...
+
+                  def __contains__(self, item):
+                      return item in self._items
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sized Protocol
+
+              It allows determing how many items in a collection, by passing it to the `len()` built-in function, which always return non-negative integer
+
+              Features:
+
+              - Number of items using `len(sized)` function
+              - Must not consume or modify collection
+              - Special method: `__len__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sized Protocol
+
+              Example:
+
+              ```
+              class SortedSet:
+
+                  def __init__(self, ...):
+                      ...
+
+                  def __len__(self):
+                      return len(self._items)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Iterable Protocol
+
+              Features:
+
+              - Obtain an iterator with `iter(iterable)` function
+              - Special method: `__iter__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Iterable Protocol
+
+              Examples:
+
+              ```
+              def __iter__(self):
+                  return iter(self._items)
+
+              # or as a generator
+
+              def __iter__(self):
+                  for item in self._items:
+                      yield item
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              It requires in addition to be iterable, sized and container to support: 
+              - index access with `[]`
+              - slicing with `[]`
+              - producing reversed iterator that is passed to `reversed()` built-in function
+              - `index()` and `count()` methods implementation
+              - implementing concatenation and repetition
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              Features:
+
+              - Implies container, sized and iterable
+              - Retrieve item by index: `item = seq[index]`
+              - Retrieve slices by slicing: `item = seq[start:stop]`
+              - Special method: `__getitem__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              Features (continue):
+
+              - Produce a reversed sequence: `r = reversed(seq)`
+              - Special method: `__reversed__()`
+              - Fallback to `__getitem__()` and `__len__()`
+
+              **NOTE**: If `__reversed()__` is not implemented, but `__getitem__()` and `__len__()` are implemented, `reversed()` will produce an iterator that internally walks back through the sequence by decrementing an index
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              Features (continue):
+
+              - Find items by value: `index = seq.index(item)`
+              - No special method
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              Features (continue):
+
+              - Count items: `num = seq.count(item)`
+              - No special method
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              Features (continue):
+
+              - Concatenation with `+` operator
+              - Special method: `__add__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              Features (continue):
+
+              - Repetition with `*` operator
+              - Special methods: `__mul__()` and `__rmul__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              **NOTE**:
+
+              Sometimes it makes sense to use `collections.abc` module for mixing methods, which are automatically become available when abstract methods are implemented
+
+              The module provides abstract base classes that can be used to test whether a class provides a particular interface
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              **NOTE (continue)**
+
+              For example if we make our class as sub-class from `collections.abc.Sequence`, then we get implemented `__getitem__()` and `__len__()` automatically
+
+              It also provides support for `__contains__()`, `__iter__()`, `__reversed__()`, `index()` and `count()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Sequence Protocol
+
+              **Examples**:
+
+              ```
+              # No slice support
+              class SortedSet:
+                  ...
+                  def __getitem__(self, index):
+                      return self._items[index]
+
+              # With slice support
+              class SortedSet:
+                  ...
+                  def __getitem__(self, index):
+                      result = self._items[index]
+                      return SortedSet(result) if isinstance(index, slice) else result
+
+              # Count example
+              class SortedSet:
+                  ...
+                  def count(self, item):
+                      index = bisect.bisect_left(self._items, item)
+                      found = (index != len(self._items)) and (self._items[index] == item)
+                      return int(found)
+
+              # Custom index
+              class SortedSet:
+                  def index(self, item):
+                      index = bisect_left(self._items, item)
+                  if (index != len(self._item)) and (self._items[index] == item):
+                      return index
+                  raise ValueError(f'{repr(item)} not found')
+
+              # Concatenation
+              class SortedSet:
+                  ...
+                  def __add__(self, rhs):
+                      return SortedSet(itertools.chain(self._items, rhs._items))
+
+              # Multiplication
+              class SortedSet:
+                  ...
+                  def __mul__(self, rhs):
+                      return self if rhs > 0 else SortedSet()
+                  def __rmul__(self, lhs):
+                      return self * lhs
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Equality Protocol
+
+              By default Python equality comparisons are inherited from the base class `object`, so these are reference equality, rather than value equality
+
+              So for custom classes comparison between 2 instances is the same as `instance1 is instance2`
+
+              To provide ability to compare custom classes several methods should be implemented
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Equality Protocol
+
+              Features:
+
+              - Equality: `lhs == rhs`
+              - Special method: `__eq__(self, rhs)`
+              - `self` argument is `lhs` (left-hand-side operand)
+              - Inequality: `lhs != rhs`
+              - Special method: `__ne__(self, rhs)`
+              - `self` argument is `lhs` (left-hand-side operand)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Equality Protocol
+
+              Examples:
+
+              ```
+              class SortedSet:
+                  ...
+                  def __eq__(self, rhs):
+                      if not isinstance(rhs, SortedSet):
+                          return NotImplemented
+                      return self._items == rhs._items
+
+                  def __ne__(self, rhs):
+                      if not isinstance(rhs, SortedSet):
+                          return NotImplemented
+                      return self._items != rhs._items
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Equality Protocol
+
+              **Note**:
+
+              It's important to return `NotImplemented` rather than `raise NotImplementedError` for `__eq__()`, `__ne__()`, `__add__()` and similar dunder methods
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Set Protocol
+
+              Features (Relational Operators):
+
+              | Dunder Method | Operator | Set Method | Meaning |
+              | --------------| -------- | ---------- | ------- |
+              | `__le__()` | `<=` | `issubset()` | Subset |
+              | `__lt__()` | `<` |  | Proper Subset |
+              | `__eq__()` | `==` |  | Equal |
+              | `__ne__()` | `!=` |  | Not Equal |
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Set Protocol
+
+              Features (Relational Operators):
+
+              | Dunder Method | Operator | Set Method | Meaning |
+              | --------------| -------- | ---------- | ------- |
+              | `__gt__()` | `>` |  | Proper Superset |
+              | `__ge__()` | `>=` | `issuperset()` | Superset |
+
+              **NOTE**: `collections.abc.Set` provides default implementation
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Set Protocol
+
+              Features (Algebraic Operators):
+
+              | Dunder Method | Infix Operator | Set Method |
+              | --------------| -------------- | ---------- |
+              | `__and__()` | `&` | `intersection()` |
+              | `__or__()` | `&#1994;` | `union()` |
+              | `__xor__()` | `^` | `symmetric_difference()` |
+              | `__sub__()` | `-` | `difference()` |
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Set Protocol
+
+              Examples:
+
+              ```
+              class SortedSet(Sequence, Set):
+
+                  def issubset(self, iterable):
+                      return self <= SortedSet(iterable)
+              
+                  def issuperset(self, iterable):
+                      return self >= SortedSet(iterable)
+
+                  def intersection(self, iterable):
+                      return self & SortedSet(iterable)
+
+                  def union(self, iterable):
+                      return self | SortedSet(iterable)
+
+                  def symmetric_difference(self, iterable):
+                      return self ^ SortedSet(iterable)
+
+                  def difference(self, iterable):
+                      return self - SortedSet(iterable)
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Exceptions And Errors -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              Always specify an exception type
+
+              If we omit exception type in the following construct:
+
+              ```
+              try:
+                  ...
+              except:
+                  ...
+              ```
+
+              Python will catch all exceptions, so the rule is always specify exception type (unless you know what you're doing)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              Exceptions are arranged in an inheritance hierarchy
+
+              ![Python Exception Inheritance Hierarchy](https://o7planning.org/en/11421/cache/images/i/7601427.png)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              When you specify an exception class in the `except` statement any class which is a sub-class of the specified class will be caught plus the specified class itself
+
+              For example, catching `IndexError` and `KeyError` can be done by catching their common base class `LookupError`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              `<ExceptionType>.mro()` reveals hierarchy
+
+              ```
+              >>> IndexError.mro()
+              [<class 'IndexError'>, <class 'LookupError'>, <class 'Exception'>, <class 'BaseException'>, <class 'object'>]
+              ```
+
+              [Full Python Exceptions Hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy)
+
+              **NOTE**: `SystemExit` exception gets invoked when `sys.exit()` is called
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+  
+              In general it's better to catch more specific exceptions, but when it comes to file system operations it's always good to use `OSError` to handle various issues
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              The most exception classes provides a simple payload which contain diagnostic information about what cause the exception
+
+              The most exception types use simple `strings` in constructor
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              In many cases we raise an exception with more informative and relevant message that default
+
+              It also helps to hide implementation details
+
+              Example:
+              
+              ```
+              raise ValueError('median() arg is an empty sequence')
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              To programmatically access error message we can use `args` attribute
+
+              ```
+              try:
+                  ...
+              except ValueError as ex:
+                  print('Payload', ex.args)
+                  print(str(ex))  # <= alt version
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              **NOTE**: In most cases we prefer to specify only one param for `args` for exception. However, in some cases specific exceptions may provide additional information
+
+              ```
+              try:
+                  ...
+              except UnicodeError as ex:
+                  print(
+                    ex,
+                    ex.encoding,
+                    ex.reason,
+                    ex.object,
+                    ex.start,
+                    ex.end
+                  )
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              In order to define custom exception it is enought to subclass from `Exception`
+
+              ```
+              class MyCustomError(Exception):
+                  pass
+
+              # or
+
+              class MyAnotherError(Exception):
+                  """Docstring"""
+              ```
+
+              **NOTE**: `Exception` class provides: `__init__()`, `__str__()`, `__repr()__`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              Example:
+
+              ```
+              class TriangleError(Exception):
+              
+                  def __init__(self, text, sides):
+                      super().__init__(text)
+                      self._sides = tuple(sides)
+                  
+                  @property
+                  def sides(self):
+                      return self._sides
+
+                  def __str__(self):
+                      return f"'{self.args[0]}' for sides {self._sides}"
+
+                  def __repr__(self):
+                      return 'TriangleError({self.args[0]!r}, {self._sides!r})'
+              
+              def triangle_area(a, b, c):
+                  sides = sorted((a, b, c))
+                  if sides[2] > sides[0] + sides[1]:
+                      raise TriangleError('Illegal trianle', sides)
+                  p = (a + b + c) / 2
+                  a = math.sqrt(p * (p - a) * (p - b) * (p - c))
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors
+
+              Pro Example (from **django** web framework)
+
+              [Link to Source](https://github.com/django/django/blob/7f19e3713598a37b0809b5434114140170d12e34/django/core/exceptions.py#L99)
+
+              ```
+              ...
+              def __init__(self, message, code=None, params=None):
+                  super().__init__(message, code, params)
+          
+                  if isinstance(message, ValidationError):
+                      if hasattr(message, 'error_dict'):
+                          message = message.error_dict
+                      elif not hasattr(message, 'message'):
+                          message = message.error_list
+                      else:
+                          message, code, params = message.message, message.code, message.params
+          
+                  if isinstance(message, dict):
+                      ...
+                  elif isinstance(message, list):
+                      ...
+                  else:
+                      self.message = message
+                      self.code = code
+                      self.params = params
+                      self.error_list = [self]
+          
+              @property
+              def message_dict(self):
+                  getattr(self, 'error_dict')
+                  return dict(self)
+          
+              @property
+              def messages(self):
+                  if hasattr(self, 'error_dict'):
+                      return sum(dict(self).values(), [])
+                  return list(self)
+          
+              def update_error_dict(self, error_dict):
+                  if hasattr(self, 'error_dict'):
+                      for field, error_list in self.error_dict.items():
+                          error_dict.setdefault(field, []).extend(error_list)
+                  else:
+                      error_dict.setdefault(NON_FIELD_ERRORS, []).extend(self.error_list)
+                  return error_dict
+          
+              def __iter__(self):
+                  if hasattr(self, 'error_dict'):
+                      for field, errors in self.error_dict.items():
+                          yield field, list(ValidationError(errors))
+                  else:
+                      for error in self.error_list:
+                          ...
+          
+              def __str__(self):
+                  if hasattr(self, 'error_dict'):
+                      return repr(dict(self))
+                  return repr(list(self))
+          
+              def __repr__(self):
+                  return 'ValidationError(%s)' % self
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Chaining Exceptions
+
+              It allows associating one exception with another. There are 2 use cases:
+
+              - During processing of one exception another exception occurs, usually in a way incidental to the first exception
+              - When we wish deliberately handle an exception by translating it into a different exception type
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Chaining Exceptions
+
+              In both cases it is good to keep reference to the original exception to avoid duplication and provide proper diagnostic messages
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Chaining Exceptions
+
+              The first case is usually called **implicit chaining**
+
+              The Python runtime machine associates the original exception with a new exception by setting the special `__context__` attribute of the most recent exception
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Chaining Exceptions
+
+              Example:
+
+              ```
+              def main():
+                  try:
+                      area = triangle_area(3, 4, 10)
+                      print(area)
+                  except TriangleError as ex:
+                      try:
+                          print(ex, file=sys.stdin)
+                      except io.UnsupportedOperation as f:
+                          print(ex)
+                          print(f)
+                          print(f.__context__ is ex)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Chaining Exceptions
+
+              The second case is usually called **explicit chaining**
+
+              This is when we deliberately associate an existing exception instance with a new exception object at the point of which the later is raised
+
+              This is usually done in the process of translating an exception from one type to another
+
+              Unlike the **implicit chaining** **explicit chaining** associates the chained exception through `__cause__` attribute
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Chaining Exceptions
+
+              Example:
+
+              ```
+              class InclinationError(Exception):
+                  pass
+
+              def inclination(dx, dy):
+                  try:
+                      return math.degrees(math.atan(dy / dx))
+                  except ZeroDivisionError as ex:
+                      raise InclinationError('Slope cannot be vertical') from ex
+              
+              try:
+                  inclination(0, 5)
+              except InclinationError as ex:
+                  print(ex)
+                  print(ex.__cause__)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Traceback Objects
+
+              In Python 3 each exception has `__traceback__` attribute which contains a reference to the traceback object associated with that exception
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Traceback Objects
+
+              Example:
+
+              ```
+              import traceback
+
+              class InclinationError(Exception):
+                  pass
+
+              def inclination(dx, dy):
+                  try:
+                      return math.degrees(math.atan(dy / dx))
+                  except ZeroDivisionError as ex:
+                      raise InclinationError('Slope cannot be vertical') from ex
+
+              def main():
+                  try:
+                      inclination(0, 5)
+                  except InclinationError as ex:
+                      traceback.print_tb(ex.__traceback__)  # printing directly
+                      s = traceback.format_tb(ex.__traceback__)  # saving to variable
+                      print(s)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Traceback Objects
+
+              You should always render the output you need from a traceback object within dynamic scope of the except block
+
+              You shouldn't store a traceback or exception object for later use
+
+              This is because the traceback object contains references to all the stack frame objects which comprise the callstack
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Exceptions And Errors :: Traceback Objects
+
+              And each stack frame contains references to all of its local variables
+
+              The size of transitive closure of objects reachable from the traceback object can be very large
+
+              And if you maintain those references, these objects won't be garbage collected
+
+              Prefer rendering tracebacks to a sting or another form
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Assertions -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Assertions
+
+              The purpose of `assert` statement is to help you prevent bugs creeping into your code, and when those do it helps you to find them more quickly
+
+              **Syntax**: `assert condition [, message]`
+
+              If the condition is `False` the `AssertionError` condition is raised, causing the program to terminate
+
+              If the message is supplied it is used as exception payload
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Assertions
+
+              The purpose of the assertion statement is to give you a convenient mean for monitoring program invariants, which are conditions which should always be true for your program
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Assertions
+
+              Assertions are best use to document any assumptions your code makes such as name being bound to an object rather than `None`, or a list being sorted at the particular point of the program
+
+              **NOTE**: There are many good and many bad places to use assertion
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Assertions
+
+              Example:
+
+              ```
+              def modulus_two(n):
+                  r = n % 2
+                  if r == 0:
+                      print('Multiple of 2')
+                  elif r == 1:
+                      print('Remainder 1')
+                  else:
+                      assert False, 'This should never happen'
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Assertions
+
+              Pro Example (from **flask** web framework)
+
+              [Link to Source](https://github.com/pallets/flask/blob/d49cfb35d4bb45e94d8c7c1920e7be99e4e10dde/src/flask/helpers.py#L97)
+
+              ```
+              def _endpoint_from_view_func(view_func):
+                  assert view_func is not None, "expected view func if endpoint is not provided."
+                  return view_func.__name__
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Assertions
+
+              **NOTES**:
+
+              Assertions shouldn't be used for arguments function validation
+              
+              It should be used to detect if the implementation of the function is incorrect
+
+              Assertions also can be used for class invariants
+
+              It's possible to turn-off assertions when executing the program by using `-O` parameter: `python -O app.py`
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              - It makes a lot of sense to master and to use Python data model and protocols for custom classes
+              - Always specify an exception type unless you know what you're doing
+              - Don't subclass from `BaseException`, instead subclass from `Exception`
+              - Don’t use asserts for data validation
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [Python Data Model](https://docs.python.org/3/reference/datamodel.html)
+              - [Abstract Base Classes for Containers](https://docs.python.org/3/library/collections.abc.html)
+              - [Python Built-in Exceptions](https://docs.python.org/3/library/exceptions.html)
+              - [Exception Chaining and Embedded Tracebacks](https://www.python.org/dev/peps/pep-3134/)
+              - [Assert Statements in Python](https://dbader.org/blog/python-assert-tutorial)
+              - [The Python Assert Statement](https://stackabuse.com/the-python-assert-statement/)
+            </textarea>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
