@@ -37,19 +37,19 @@ class LinkedListIterator:
     def __init__(self, linked_list):
         self.linked_list = linked_list
         self._current = None
-        self._endFlag = False
+        self._end_flag = False
 
     def __iter__(self):
         return self
 
     def __next__(self):
         self._set_init_current()
-        if self._endFlag is True:
-            self._endFlag = False
+        if self._end_flag is True:
+            self._end_flag = False
             raise StopIteration
         next_value = self._current.value
         if self._current.next is None:
-            self._endFlag = True
+            self._end_flag = True
         self._current = self._current.next
         return next_value
 
