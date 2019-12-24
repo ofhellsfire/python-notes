@@ -1,0 +1,825 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/css/theme/white.css">
+    <style>
+      .slides:after {
+        content: 'Python 3.6.x';
+        font-size: 14px;
+        border: 1px solid #2d88b3;
+        padding: 2px;
+        background: #028ccc;
+        color: #fff736;
+        float: right;
+        border-radius: 5px;
+      }
+      code {
+        background: #fff8c7;
+      }
+      section.recap:after {
+        content: 'Recap';
+        font-size: 16px;
+        font-weight: bold;
+        background: red;
+        float: left;
+        border: 1px solid black;
+        padding: 2px;
+        color: white;
+        border-radius: 5px;
+        position: absolute;
+        transform: rotate(0.88turn);
+        top: 0px;
+        left: -10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- Slide 1 -->
+        <section data-markdown>
+          <textarea data-template>
+            # Context Managers and Introspection
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Protocols And Exceptions
+
+            - Context Managers
+            - Context Manager Protocol
+            - Introspection
+            - Recommendations
+          </textarea>
+        </section>
+
+        <!-- Slide Group: Context Managers -->
+        <section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Context Managers
+
+              **Context manager** is an object designed to be used in a `with` statement
+
+              When the `with` is executed, the expression part of the statement evaluates to the value, this value must be a **context manager**, and the underlying mechanics of the `with` statement use this value in specific ways to implement the semantics of the `with` statement
+            </textarea>
+          </section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Context Managers
+
+              Conceptually a **context manager** implements 2 methods:
+
+              - the 1st method is called <u>before</u> the `with` statement code block begins
+              - the 2nd method is called when the `with` statement code block <u>ends</u>, even if the block exits with an exception
+            </textarea>
+          </section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Context Managers
+
+              General format:
+
+              ```
+              with context_manager:
+                  enter()
+                  body
+                  exit()
+              ```
+
+              Example:
+
+              ```
+              with open(filepath, 'w') as f:
+                  f.write('Hello')
+              ```
+            </textarea>
+          </section>
+          <section data-markdown class="recap">
+            <textarea data-template>
+              ### Context Managers
+
+              A **context manager** ensures that resources are properly and automatically managed
+
+              `enter()` prepares the manager for use
+              
+              `exit()` cleans it up
+
+              **NOTE**: Files are context managers, file's `exit()` code closes the file
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Context Manager Protocol -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              **Context manager protocol** consists of 2 special methods:
+
+              - `__enter__()`
+              - `__exit__(exc_type, exc_val, exc_tb)`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              ![Python Context Manager](images/context_managers_flow.jpg)
+
+              **NOTE**: The value of `expression.__enter__()` is bound to `x`, not the value of expression
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol :: Flow
+
+              1) The 1st thing the `with` statement does is executing its expression (the code immediately following the `with` keyword). The expression must evaluate to a **context manager** (an object that supports `__enter__()` and `__exit__()` methods)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol :: Flow
+
+              2) Then the `with` statement calls `__enter__()` on that context manager with no arguments. If `__enter__()` throws an exception, then execution never enters the `with` block and the `with` statement is done. If `__enter__()` executes successfully it can return a value. If the `with` statement includes the `as` clause, this return value is bound to the name in the `as` clause, otherwise the return value is discarded.
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol :: Flow
+
+              3) Then the `with` block itself (body) is executed
+
+              4) In both cases (failure or success) of `with` block execution, then `__exit__()` is called after the block. If the `with` block exits normally, then `__exit__()` is called with no extra information. If the `with` block ends with exception, then exception information is passed to `__exit__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              Examples:
+
+              ```
+              class LoggingContextManager:
+
+                  def __enter__(self):
+                      print('inside enter')
+                      return 'inside with-block'
+
+                  def __exit__(self, exc_type, exc_val, exc_tb):
+                      print(f'inside exit: {exc_type} {exc_val} {exc_tb}')
+                      return
+
+              with LoggingContextManager() as x:
+                  print(x)
+
+              with LoggingContextManager() as x:
+                  raise ValueError('broken')
+                  print(x)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              `__enter__()`
+
+              Features:
+
+              - called before entering `with` statement body
+              - return value bound to `as variable`
+              - can return value of any type
+              - commonly returns context-manager itself
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              Example:
+
+              ```
+              >>> f = open(filename, 'r')
+              >>> with f as g:
+              ...     print(f is g)
+              True
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              `__exit__()`
+
+              The first and main role of `__exit__()` is to be executed after `with` block termination
+
+              The second role is to properly handle the case when the `with` block exits with an exception
+
+              To handle an exception case `__exit__()` accepts 3 arguments:
+
+              ```
+              __exit__(self, exception_type, exception_value, exception_traceback)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              `__exit__()`
+
+              When a `with` block exits without an exception all 3 arguments are set to `None`
+
+              If exception occured these arguments are bound to the exception
+
+              It's typical for `__exit__()` to check type for `None` to see if an exception was thrown
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              `__exit__()`
+
+              Example:
+
+              ```
+              class LoggingContextManager:
+
+                  ...
+
+                  def __exit__(self, exc_type, exc_val, exc_tb):
+                      if exc_type is None:
+                          print('inside exit')
+                      else:
+                          print(f'exception! inside exit: {exc_type} {exc_val} {exc_tb}')
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              `__exit__()`
+
+              By default `__exit__()` propagates exceptions thrown from the `with` statement's code block
+
+              If `__exit__()` returns a value which evaluates to `False` in a boolean context, then any exception that come out of the `with` block will be re-raised after `__exit__()` call
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              `__exit__()`
+
+              It's like `__exit__()` answers the question: should the `with` statement swallow exception?
+
+              If `False` - exception will be re-raised, if `True` - `with` block exits normally
+
+              If no return value from `__exit__()` then it returns `None`, then it means that `None` evaluates to `False` and it means that exceptions will be propagated
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              `__exit__()`
+
+              `__exit__()` should <u>never</u> explicitly re-raise exceptions
+
+              `__exit__()` should only raise exceptions if it fails itself
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager Protocol
+
+              Example:
+
+              ```
+              >>> class Baz:
+              ...     def __enter__(self):
+              ...         return self
+              ...     def __exit__(self, exc_type, exc_val, exc_tb):
+              ...         print('inside exit')
+              >>> with Baz() as bz:
+              ...     print('inside with block')
+              ...     raise Exception('some exception')
+              inside with block
+              inside exit
+              Traceback (most recent call last):
+                File "<stdin>", line 3, in <module>
+              Exception: some exception
+
+              >>> class Foo:
+              ...     def __enter__(self):
+              ...         return self
+              ...     def __exit__(self, exc_type, exc_val, exc_tb):
+              ...         print('inside exit')
+              ...         return False
+              >>> with Foo() as f:
+              ...     print('inisde with block')
+              ...     raise Exception('some exception')
+              inside with block
+              inside exit
+              Traceback (most recent call last):
+                File "<stdin>", line 3, in <module>
+              Exception: some exception
+
+              >>> class Bar:
+              ...     def __enter__(self):
+              ...         return self
+              ...     def __exit__(self, exc_type, exc_val, exc_tb):
+              ...         print('inside exit')
+              ...         return True
+              >>> with Bar() as b:
+              ...     print('inisde with block')
+              ...     raise Exception('some exception')
+              inisde with block
+              inside exit
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager
+
+              `contextlib.contextmanager`
+
+              `contextlib` is a standard library module for working with context managers
+
+              It provides utilities for common tasks involving the `with` statement
+
+              `contextlib.contextmanager` is a decorator you can use to create new context managers
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager
+
+              General Example-Template for `contextlib.contextmanager`:
+
+              ```
+              import contextlib
+
+              @contextlib.contextmanager
+              def my_context_manager():
+                  # <ENTER>
+                  try:
+                      yield [value]
+                      # <NORMAL EXIT>
+                  except ExceptionType:
+                      # <EXCEPTIONAL EXIT>
+                      raise
+
+              with my_context_manager() as x:
+                  ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+                ### Context Manager
+
+                `contextlib.contextmanager`
+
+                First, the generator is executed up to `yield` statement. Everything before the `yield` is equivalent to `__enter__()`
+
+                Then `yield` supplies the value which will be bound to the `as` variable in the `with` statement. It's like return statement from `__enter__()`
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+                ### Context Manager
+
+                `contextlib.contextmanager`
+
+                Once `yield` is called, control leaves the context manager function and goes to the body of the `with` block
+
+                If the `with` block terminates normally, then execution flow returns to the context manager function immediately after `yield` statement
+
+                If the `with` block raises an exception, then that exception is re-raised from the `catch` statement in the context manager
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+                ### Context Manager
+
+                `contextlib.contextmanager`
+
+                `contextmanager` allows you to define context managers with simple control flow
+                
+                It allows you to leverage the statefulness of generators
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+                ### Context Manager
+
+                `contextlib.contextmanager`
+
+                `contextmanager` exception propagation:
+
+                - use standard exception handling to propagate exceptions
+                - explicitly re-raise or don't catch - to propagate exceptions
+                - swallow exceptions by not re-raising them
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+                ### Context Manager
+
+                `contextlib.contextmanager` example:
+
+                ```
+                >>> @contextlib.contextmanager
+                ... def foo():
+                ...     print('inside enter')
+                ...     try:
+                ...         yield 'inside with block'
+                ...         print('inside normal exit')
+                ...     except:
+                ...         print('inside exceptional exit')
+                ...         raise
+
+                >>> with foo() as f:
+                ...     print(f)
+                ...     print('inside with body (explicit)')
+                inside enter
+                inside with block
+                inside with body (explicit)
+                inside normal exit
+
+                >>> with foo() as f:
+                ...     print(f)
+                ...     print('inside with body (explicit)')
+                ...     raise Exception('error')
+                inside enter
+                inside with block
+                inside with body (explicit)
+                inside exceptional exit
+                Traceback (most recent call last):
+                  File "<stdin>", line 4, in <module>
+                Exception: error
+                ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+                ### Multiple Context Managers
+
+                Python supports multiple context managers, so it's possible to use as many context managers as you need
+
+                General syntax:
+
+                ```
+                with context_manager_1() as cm1, context_manager_2() as cm2, ... :
+                    BODY
+
+                # or
+
+                with context_manager_1() as cm1:
+                    with context_manager_2() as cm2:
+                        BODY
+                ```
+
+                **NOTE**: Variable is bound in the `as` clause can be used in later context managers
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Multiple Context Managers
+
+              Example:
+              
+              ```
+              @contextlib.contextmanager
+              def nest_test(name):
+                  print(f'Entering {name}')
+                  yield name
+                  print(f'Exiting {name}')
+
+              with nest_test('outer') as n1, nest_test(f'inner, nested in {n1}'):
+                  print('BODY')
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Multiple Context Managers
+
+              Exceptions propagated from inner context managers will be seen by outer context managers
+
+              **NOTE**: Don't pass a list in context manager. Don't do that:
+
+              ```
+              with [nest_test('a'), nest_test('b')]:
+                  ...
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager :: Practical Example
+
+              ```
+              import contextlib
+
+
+              class Transaction:
+              
+                  def __init__(self, conn):
+                      self.conn = conn
+                      self.xid = conn._start_transaction()
+              
+                  def commit(self):
+                      self.conn._commit_transaction(self.xid)
+              
+                  def rollback(self):
+                      self.conn._rollback_transaction(self.xid)
+              
+              @contextlib.contextmanager
+              def start_transaction(connection):
+                  tx = Transaction(connection)
+                  try:
+                      yield tx
+                  except:
+                      tx.rollback()
+                      raise
+                  tx.commit()
+              
+              class Connection:
+              
+                  def __init__(self):
+                      self.xid = 0
+              
+                  def _start_transaction(self):
+                      self.xid += 1
+                      print(f'starting transaction {self.xid}')
+                      result = self.xid
+                      return result
+              
+                  def _commit_transaction(self, xid):
+                      print(f'committing transaction {self.xid}')
+              
+                  def _rollback_transaction(self, xid):
+                      print(f'rolling back transaction {self.xid}')
+              
+              conn = Connection()
+              try:
+                  with start_transaction(conn) as tx:
+                      x = 2
+                      y = x + 2
+                      print(f'transaction 1 = {x} {y}')
+                      raise ValueError()
+              except ValueError:
+                  print('Ooops!')
+              
+              try:
+                  with start_transaction(conn) as tx:
+                      x = 2
+                      y = x + 2
+                      print(f'transaction 2 = {x} {y}')
+              except ValueError:
+                  assert False
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Context Manager
+
+              Pro Example (from **django** web framework)
+
+              [Link to Source](https://github.com/django/django/blob/7e6b214ed34f5562dbd83cf54924a5b589a29715/django/db/transaction.py#L168)
+
+              ```
+              class Atomic(ContextDecorator):
+
+                  def __enter__(self):
+                      connection = get_connection(self.using)
+                      ...
+
+
+                  def __exit__(self, exc_type, exc_value, traceback):
+                      connection = get_connection(self.using)
+              
+                      if connection.savepoint_ids:
+                          sid = connection.savepoint_ids.pop()
+                      else:
+                          connection.in_atomic_block = False
+                      ...
+              ```
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Introspection -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection
+
+              Introspection is an ability of the program to examine its own structure and state
+
+              A process of looking inward to perform self-examination
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection :: Object Types
+
+              The circular dependency is below shows that `type` and `object` are fundamental to the Python object model, and can't be without each other
+
+              ![Object Type Relation](images/object_type_relation.jpg)
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection :: Object Types
+
+              ```
+              >>> i = 3
+              >>> i.__class__
+              <class 'int'>
+              >>> i.__class__.__class__
+              <class 'type'>
+              >>> issubclass(type, object)
+              True
+              >>> type(object)
+              <class 'type'>
+              >>> type.__mro__
+              (<class 'type'>, <class 'object'>)
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection :: Introspecting Objects
+
+              `dir(instance)` - reveals list of attribute names for the instance
+
+              `getattr(object, name)` - returns the value of the named attribute of object
+
+              `hasattr(object, name)` - returns `True` if the string is the name of one of the object's attributes, otherwise `False`
+
+              **NOTE**: Functions are callable attributes
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection :: Introspecting Objects
+
+              Examples:
+
+              ```
+              >>> class Foo:
+              ...     def __init__(self, a):
+              ...         self.a = a
+              ...     def bar(self):
+              ...         return self.a * 100
+              ...     @staticmethod
+              ...     def baz():
+              ...         return 'inside baz'
+              ...     def bump(self, b):
+              ...         return self.a + b
+              >>> foo = Foo(1000)
+              >>> dir(Foo)
+              ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'bar', 'baz']
+              >>> dir(foo)
+              ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'a', 'bar', 'baz']
+              >>> hasattr(Foo, 'a')
+              False
+              >>> hasattr(Foo, 'baz')
+              True
+              >>> hasattr(Foo, 'bar')
+              True
+              >>> hasattr(foo, 'a')
+              True
+              >>> hasattr(foo, 'b')
+              False
+              >>> hasattr(foo, '__lt__')
+              True
+              >>> hasattr(foo, 'baz')
+              True
+              >>> a = getattr(Foo, 'baz')
+              >>> a()
+              'inside baz'
+              >>> b = getattr(Foo, 'a')
+              Traceback (most recent call last):
+                File "<stdin>", line 1, in <module>
+              AttributeError: type object 'Foo' has no attribute 'a'
+              >>> b = getattr(foo, 'a')
+              >>> b
+              1000
+              >>> c = getattr(foo, 'bar')
+              >>> c()
+              100000
+              >>> getattr(Foo, 'bar')(foo)
+              100000
+              >>> getattr(Foo, 'bump')(foo, 15)
+              1015
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspecting Scopes
+
+              Python provides 2 functions for scopes examination
+
+              `globals()` - returns a dictionary representing the current global symbol table. This is always the dict of the current module
+
+              `locals()` - updates and returns a dictionary representing the current local symbol table
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspecting Scopes
+
+              Examples:
+
+              ```
+              See example/scopes_introspection.py
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection :: `inspect` module
+
+              The inspect module provides several useful functions to help get information about live objects such as modules, classes, methods, functions, tracebacks, frame objects, and code objects
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection :: `inspect` module
+
+              Examples:
+
+              ```
+              See example/inspect_basic.py
+              See example/inspect_code_aware.py
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Introspection :: `inspect` module
+
+              **NOTES**:
+
+              Any class that is in the module namespace will be returned by `getmembers()` whether defined or imported
+
+              Things that are implemented in **C/C++** don't provide sufficient metadata
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Recommendations -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Recommendations
+
+              - Nothing for today 😊
+            </textarea>
+          </section>
+        </section>
+
+        <!-- Slide Group: Useful links -->
+        <section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Useful links
+
+              - [Python with Context Managers](https://jeffknupp.com/blog/2016/03/07/python-with-context-managers/)
+              - [inspect - Inspect live objects](https://docs.python.org/3/library/inspect.html)
+            </textarea>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/js/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/markdown/markdown.js"></script>
+    <script>
+      Reveal.initialize({
+	math: {
+	  mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+	  config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+	},
+	dependencies: [
+	  { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0/plugin/math/math.js', async: true }
+	]
+      });
+    </script>
+  </body>
+</html>
