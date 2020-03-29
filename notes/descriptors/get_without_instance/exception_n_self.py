@@ -1,6 +1,6 @@
 # When descriptor is meant to be for instance-level, and descriptor is used
-# from class-level instead.
-# We may raise exception or return `self`
+# from class-level instead, then
+# we may raise exception or return `self`
 
 class DumbStdDescriptor:
 
