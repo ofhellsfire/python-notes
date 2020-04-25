@@ -36,6 +36,7 @@ class ClassAttr:
     def __get__(self, instance, owner):
         if not instance:
             return self
+        print('inside descriptor')
         return self.storage[instance]
 
     def __set__(self, instance, value):
