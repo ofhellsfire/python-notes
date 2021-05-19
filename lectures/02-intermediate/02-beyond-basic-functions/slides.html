@@ -156,6 +156,49 @@
             <textarea data-template>
               ### Functions Review :: Recursion
 
+              Usually **recursion** is used for traversal tree-like data structures and in cases when
+              **recursion** solution is more elegant and clear.
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review :: Recursion
+
+              Some considerations:
+
+              - For some problems, a recursive solution will be awkward rather than elegant
+              - Recursive implementations often consume more memory than non-recursive ones
+              - In some cases, using recursion may result in slower execution time
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review :: Recursion
+
+              ```
+              >>> def function():
+                      x = 10
+                      function()
+
+              >>> function()
+              Traceback (most recent call last):
+                File "<stdin>", line 1, in <module>
+                File "<stdin>", line 3, in function
+                File "<stdin>", line 3, in function
+                File "<stdin>", line 3, in function
+                [Previous line repeated 996 more times]
+              RecursionError: maximum recursion depth exceeded
+
+              >>> from sys import getrecursionlimit
+              >>> getrecursionlimit()
+              1000
+              ```
+            </textarea>
+          </section>
+          <section data-markdown>
+            <textarea data-template>
+              ### Functions Review :: Recursion
+
               ```
               # Imperative
               def fib(stop=10, debug=False):
