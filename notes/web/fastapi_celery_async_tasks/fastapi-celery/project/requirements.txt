@@ -1,0 +1,6 @@
+aiofiles==0.6.0
+fastapi==0.64.0
+requests==2.25.1
+uvicorn==0.13.4
+celery==4.4.7
+redis==3.5.3
