@@ -1,2 +1,10 @@
 # functions
 multipledispatch
+
+# concurrency.multiprocessing
+numpy
+loky
+mpi4py
+ray
+dask
+p_tqdm
