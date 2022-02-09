@@ -80,3 +80,21 @@ Multiple version requirements can also be separated with a comma, e.g. `>= 1.2, 
 
 - You can specify that a dependency should be installed only for specific Python versions (`pathlib2 = { version = "^2.2", python = "~2.7 || ^3.2" }`)
 - For more complex install conditions for your dependencies, **poetry** supports environment markers via the `markers` property (`pathlib2 = { version = "^2.2", markers = "python_version ~= '2.7' or sys_platform == 'win32'" }`)
+
+### Extras
+
+**poetry** supports extras to allow optional dependencies and clusters of optional dependencies
+
+Example:
+
+```
+[tool.poetry.dependencies]
+psycopg2 = { version = "^2.7", optional = true }
+mysqlclient = { version = "^1.3", optional = true }
+
+[tool.poetry.extras]
+mysql = ["mysqlclient"]
+pgsql = ["psycopg2"]
+```
+
+And use `poetry install --extras "mysql pgsql"` when install packages.
