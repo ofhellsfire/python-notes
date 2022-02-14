@@ -56,6 +56,11 @@ def concatenate(a, b):
     return a + str(b)
 
 
+@dispatch((list, tuple), (str, int))
+def concatenate(a, b):
+    return list(a) + [b]
+
+
 @dispatch(Sequence, tuple)
 def concatenate(a, b):
     return list(a) + [b]
@@ -82,5 +87,6 @@ if __name__ == '__main__':
     print(concatenate(['a', 'b'], 'c'))
     print(concatenate('Hello ', 'World'))
     print(concatenate('a', 1))
+    print(concatenate((1, 3, 5), '7'))
     print(concatenate((1, 2), [3, 4]))
     print(concatenate([1, 2, 3], ('1', '1')))
