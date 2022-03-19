@@ -11,3 +11,7 @@ p_tqdm
 
 # async
 aiohttp
+
+# pytest
+pytest
+hypothesis

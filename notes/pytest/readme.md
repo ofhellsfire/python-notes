@@ -26,6 +26,8 @@ the tests run. Use 0 for all tests.
 
 `--markers` - show registered markers.
 
+`--pdb` - get into standard interactive debugger pdb on test failures.
+
 ## Tests Project Layout (Best Practice)
 
 - All of the tests are kept in `tests` folder and separate from the package source files in `src`.
@@ -175,6 +177,9 @@ we are telling **pytest** the name of our plugin and its path.
 - `pytest-sugar` - Instafail + Colors + Progress Bar
 - `pytest-flake8` - Check for style plus linting
 - `pytest-django` - Test Django applications
+- `pytest-clarity` - A plugin to improve the output of pytest with colourful unified diffs
+- `pytest-parallel` - A pytest plugin for parallel and concurrent testing
+- `pytest-cov` - Coverage plugin for pytest
 
 ### Testing Plugins
 
@@ -183,6 +188,10 @@ testing a change to a testing tool is a little tricky. To solve that we use a
 plugin called `pytester` that ships with **pytest** but is disabled by default.
 
 To enable `pytester` we add `pytest_plugins = 'pytester'` to the `conftest.py`.
+
+## Code Coverage
+
+We can get the summary from the command line with `pytest --cov=<module> <testsfolder>`
 
 ## Add Custom CLI Options Notes
 
