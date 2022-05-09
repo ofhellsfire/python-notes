@@ -74,9 +74,116 @@ In the last case, you end up creating lots of small objects that will come popul
 small object lists, and even once the list is dead, the dead objects will still occupy a lot of
 memory.
 
-Occupied memory is still accessible to the Python program. But from the OS’s
+Occupied memory is still accessible to the Python program. But from the OS's
 perspective, your program's size is the total memory allocated to Python.
 If you run on Linux, you may see the total memory used by your program increase.
+
+The amount of memory that Python holds depends on the usage patterns. 
+In some cases, all allocated memory could be released only when a Python process terminates.
+
+## Garbage Collection
+
+When objects are no longer needed, Python automatically reclaims memory from them.
+
+Garbage collections algorithms track which objects can be deallocated and pick an optimal 
+time to deallocate them. Standard CPython's garbage collector has two components, 
+the **reference counting collector** and the **generational garbage collector**, known as **gc module**.
+
+The reference counting algorithm is incredibly efficient and straightforward, but it cannot detect reference cycles.
+
+A supplemental algorithm called generational cyclic GC deals with reference cycles only.
+
+### Reference Counting
+
+Reference counting is a simple technique in which objects are deallocated when there is no reference to them in a program.
+
+Every variable in Python is a reference (a pointer) to an object and not the actual value itself. 
+To keep track of references, every object (even integer) has an extra field called reference count 
+that is increased or decreased when a pointer to the object is created or deleted.
+
+Reference count increases, for example, when:
+
+- assignment operator is used
+- argument passing is used
+- appending an object to a list (object's reference count will be increased)
+
+Most of the garbage collection is done by reference counting algorithm, which we cannot tune at all.
+
+If the reference counting field reaches zero, Python automatically calls the 
+object-specific memory deallocation function. If an object contains references 
+to other objects, then their reference count is automatically decremented too. 
+Thus, other objects may be deallocated in turn.
+
+Variables, which are declared outside of functions, classes, and blocks, are called globals. 
+Usually, such variables live until the end of the Python's process. 
+Thus, the reference count of objects, which are referred by global variables, never drops to zero. 
+To keep them alive, all globals are stored inside a dictionary. 
+You can get it by calling the `globals()` function.
+
+Variables, which are defined inside blocks (e.g., in a function or class) have 
+a local scope (i.e., they are local to its block). When Python interpreter exits from a block, 
+it destroys local variables and their references that were created inside the block.
+
+It's important to understand that while your program stays in a block, Python 
+interpreter assumes that all variables inside it are in use. 
+To remove something from memory, you need to either assign a new value to a 
+variable or exit from a block of code. 
+In Python, the most popular block of code is a function; this is where most of 
+the garbage collection happens. 
+That is another reason to keep functions small and simple.
+
+To check the number of current references use `sys.getrefcount` function.
+
+Sometimes you need to remove a global or a local variable prematurely. 
+To do so, you can use the `del` statement that removes a variable and its 
+reference (not the object itself).
+
+> The reference counting algorithm has a lot of issues, such as circular references, 
+> thread locking, and memory and performance overhead. Reference counting is one 
+> of the reasons why Python can't get rid of the GIL.
+
+### Generational Garbage Collector
+
+Classical reference counting has a fundamental problem - it cannot detect reference cycles. 
+A reference cycle occurs when one or more objects are referencing each other.
+
+```
+|-----| -----> |-----|
+|  A  |        |  B  |
+|-----| <----- |-----|
+```
+
+The `del` statement removes the references to our objects (i.e., decreases reference count by 1). 
+After Python executes the `del` statement, our objects are no longer accessible from Python code. 
+However, such objects are still sitting in memory. 
+That happens because they are still referencing each other, and the reference count of each object is 1.
+
+To resolve this issue, the additional cycle-detecting algorithm was introduced.
+The `gc` module is responsible for this and exists only for dealing with such a problem.
+
+Reference cycles can only occur in container objects 
+(i.e., in objects that can contain other objects), such as lists, dictionaries, classes, tuples.
+
+Unlike reference counting, cyclic GC does not work in real-time and runs periodically. 
+To reduce the frequency of GC calls and micro pauses Python uses various heuristics.
+
+Algorithm does as follows: GC iterates over each container object and temporarily 
+removes all references to all container objects it references. 
+After full iteration, all objects which reference count lower than two are 
+unreachable from Python's code and thus can be collected.
+
+Cycles can easily happen in real life. Typically you encounter them in graphs, 
+linked lists or in structures, in which you need to keep track of relations between objects. 
+If your program has an intensive workload and requires low latency, you need to 
+avoid reference cycles as possible. 
+
+To avoid circular references in your code, you can use weak references, 
+that are implemented in the `weakref` module. 
+Unlike the usual references, the `weakref.ref` doesn't increase the reference count 
+and returns `None` if an object was destroyed.
+
+The automatic collection can be disabled by calling `gc.disable()`. 
+To manually run the collection process, you need to use `gc.collect()`.
 
 ## Object Sizes
 
@@ -164,3 +271,17 @@ TODO: unclear how dict size changes
 Empty set size is **216 bytes**.
 
 TODO: unclear how dict size changes
+
+### Class Size
+
+Size of a bare class inherited from `object` is **1064 bytes** in case of `sys.getsizeof` and **0 bytes** in case of `pympler.asizeof`.
+
+The size of the bare class instance: **48 bytes** in case of `sys.getsizeof` and **152 bytes** in case of `pympler.asizeof`.
+
+TODO: why such a big difference?
+
+TODO: how class size changes
+
+## Useful Tools
+
+`sys._debugmallocstats()` - prints some stats about Python memory allocator.
