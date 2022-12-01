@@ -42,6 +42,10 @@ will always be used.
 - The `conftest.py` file is optional. It is considered by **pytest** as a "local plugin"
 and can contain *hook functions* and *fixtures*. *Hook functions* are a way to
 insert code into part of the **pytest** execution process to alter how pytest works.
+- (Tip): By having empty `conftest.py` in the root project path, it ensures that 
+`pytest` recognizes the modules without having to specify the `PYTHONPATH`. In the
+background `pytest` modifies the `sys.path` by including all submodules found 
+in the root path.
 
 ## Marking Tests
 

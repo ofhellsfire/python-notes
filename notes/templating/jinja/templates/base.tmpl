@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+</head>
+
+<body>
+{% include "_nav_sub_doc.tmpl" %}
+  {% block content %}
+    <h1>Welcome to {{ title }}!</h1>
+  {% endblock content %}
+</body>
+</html>

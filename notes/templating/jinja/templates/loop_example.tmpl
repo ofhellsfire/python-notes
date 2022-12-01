@@ -1,0 +1,7 @@
+Hi, {{ name }}!
+
+You have the following items in your bag:
+{# Use `-` to disable new line printing #}
+{%- for item in items %}
+- {{ item }}
+{%- endfor %}

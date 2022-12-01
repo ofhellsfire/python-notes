@@ -1,0 +1,8 @@
+{# macros usage example #}
+{%- import "macro_example.tmpl" as macros -%}
+Hi, {{ name }}!
+
+Time is {{ time }}.
+
+Datetime poem for you:
+{{ macros.add_poem(hour) }}

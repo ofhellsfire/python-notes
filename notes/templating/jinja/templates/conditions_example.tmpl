@@ -1,0 +1,12 @@
+Hi, {{ name }}!
+{% if hour > 6 and hour < 12 %}
+The daytime is **Morning**.
+{% elif hour > 12 and hour < 18 %}
+The daytime is **Day**.
+{% elif hour > 18 and hour <= 22 %}
+The daytime is **Evening**.
+{% else %}
+The daytime is **Night**.
+{% endif %}
+Ololo
+

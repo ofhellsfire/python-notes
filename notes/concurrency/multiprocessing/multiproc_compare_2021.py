@@ -10,6 +10,7 @@ from dask.distributed import Client
 from p_tqdm import p_map
 from pathos.multiprocessing import ProcessPool
 from mpire import WorkerPool
+from joblib import Parallel, delayed
 
 
 def slow_fn(args):
@@ -121,5 +122,13 @@ if __name__ == '__main__':
     print(f'Start {name.upper()} execution...')
     with WorkerPool(n_jobs=5) as pool:
         res = pool.map(slow_fn, jobs, chunk_size=16)
+    print(f'Elapsed time for {name.upper()}: {time.time() - start_time}')
+    print(f'\n{"=" * 53}\n')
+
+    # 10: joblib (default loky backend)
+    start_time = time.time()
+    name = 'joblib (loky)'
+    print(f'Start {name.upper()} execution...')
+    res = Parallel(n_jobs=4)(delayed(slow_fn)(j) for j in np.random.random((512, 5)))  # TODO: not sure about correctness
     print(f'Elapsed time for {name.upper()}: {time.time() - start_time}')
     print(f'\n{"=" * 53}\n')

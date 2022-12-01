@@ -1,0 +1,9 @@
+{%- macro add_poem(hour) %}
+  {%- set day_poem = "Oh, the day's too short for a happy task,\n    And the day's too short for play;" %}
+  {%- set night_poem = "And the night's too short for the bliss of love,\n    For look, how the edge of the sky grows gray," %}
+  {%- if 0 <= hour < 6 or 20 < hour < 23 %}
+    {{ night_poem }}
+  {%- else %}
+    {{ day_poem }}
+  {%- endif %}
+{%- endmacro %}

@@ -1,0 +1,13 @@
+{% extends "base.tmpl" %}
+
+
+{% block content %}
+<h1>{{ name }} {{ title }}</h1>
+<ul>
+{%- for item in items|sort(reverse=true) %} {# applying sort filter #}
+  <li>
+    <em>{{ item|capitalize }}</em> {# applying filter #}
+  </li>
+{%- endfor %}
+</ul>
+{% endblock content %}
