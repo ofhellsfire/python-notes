@@ -125,6 +125,7 @@ started (the directory, the arguments, and so on).
 in the next.
 - `capsys` - provides two bits of functionality: it allows you to retrieve 
 stdout and stderr from some code, and it disables output capture temporarily.
+- `caplog` - provides capturing log messages for further assertion.
 - `monkeypatch` - Dynamic modification of a class or module during runtime. 
 During testing, it is a convenient way to take over part of the runtime 
 environment of the code under test and replace input/output dependencies with 
