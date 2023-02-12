@@ -1,0 +1,18 @@
+syntax = "proto3";
+package weather;
+
+message Location {
+  double lat = 1;
+  double long = 2;
+}
+
+message WeatherInfo {
+  float temp = 1;
+  uint32 humidity = 2;
+  uint32 precipitation = 3;
+  bytes skycover = 4;
+}
+
+service WeatherInfoService {
+  rpc GetWeatherInfo(Location) returns (WeatherInfo) {}
+}
