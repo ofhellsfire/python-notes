@@ -14,3 +14,12 @@ object member variables for storing state.
 
 Extending the `threading.Thread` class is suited for longer-lived tasks and 
 services within an application.
+
+## Race Conditions
+
+The Python interpreter enforces fairness between all of the threads that are 
+executing to ensure they get a roughly equal amount of processing time. To do this, 
+Python will suspend a thread as it's running and will resume another thread in turn. 
+The problem is that we don't know exactly when Python will suspend our threads. 
+A thread can be paused a halfway through what looks like an atomic operation, which 
+can lead to race conditions and side effects in case threads work on the same source.
